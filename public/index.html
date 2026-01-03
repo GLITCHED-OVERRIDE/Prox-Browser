@@ -83,7 +83,7 @@ iframe.active,.customPage.active{display:block}
     <button class="ctrl" onclick="reloadTab()">⟳</button>
 
     <div id="urlWrap">
-      <input id="urlBar">
+      <input id="urlBar" placeholder="Type URL or search query...">
       <span id="bookmarkStar" onclick="toggleBookmark()">☆</span>
     </div>
 
@@ -150,7 +150,7 @@ const browserSearchURLs = {
 menuBtn.onclick=()=>menu.style.display="flex";
 menu.onmouseleave=()=>menu.style.display="none";
 
-// PROXY FUNCTIONS
+// Normalize URL or search query
 function normalize(v){
   if(v.startsWith("/?/")) return v;
   if(!v.includes(".")) return browserSearchURLs[defaultBrowser]+encodeURIComponent(v);
@@ -158,6 +158,7 @@ function normalize(v){
   return v;
 }
 
+// Open a new tab
 function newTab(url){
   if(!url) url = browserSearchURLs[defaultBrowser];
   overlay.style.display="flex";
@@ -183,6 +184,7 @@ function newTab(url){
   activate(t);
 }
 
+// Activate a tab
 function activate(t){
   tabs.forEach(x=>{
     x.tab.classList.remove("active");
@@ -194,16 +196,78 @@ function activate(t){
   (t.mode==="proxy"?t.iframe:t.custom).classList.add("active");
 }
 
+// Auto-open a new tab on page load
+window.addEventListener("load", ()=>newTab());
+
+// Browser controls
 function goBack(){active?.iframe.contentWindow.history.back()}
 function goForward(){active?.iframe.contentWindow.history.forward()}
 function reloadTab(){active?.iframe.contentWindow.location.reload()}
 function fullscreen(){active?.iframe.requestFullscreen()}
 function closeTab(t){t.tab.remove();t.iframe.remove();if(t.custom)t.custom.remove();tabs=tabs.filter(x=>x!==t);tabs.length?activate(tabs.at(-1)):overlay.style.display="none"}
+function closeOverlay(){overlay.style.display="none"}
 
+// Dev tools
 function injectDev(){try{const d=active.iframe.contentDocument;const s=d.createElement("script");s.src="//cdn.jsdelivr.net/npm/eruda";s.onload=()=>{const i=d.createElement("script");i.textContent="eruda.init();";d.body.appendChild(i)};d.body.appendChild(s)}catch{}}
 
-// Bookmarks, History, Settings code is same as before...
+// Bookmarks, history, settings (same as previous implementation)
+function toggleBookmark(){if(bookmarks[active.url]) openEdit(active.url); else {bmCreateName.value=active.url;bmCreateCode.value=active.url;bmCreate.style.display="flex"}}
+function saveBookmark(){bookmarks[bmCreateCode.value]={name:bmCreateName.value,code:bmCreateCode.value};localStorage.setItem("bookmarks",JSON.stringify(bookmarks));closeBM();renderBookmarks()}
+function openEdit(key){editKey=key;bmEditName.value=bookmarks[key].name;bmEditCode.value=bookmarks[key].code;bmEdit.style.display="flex"}
+function saveEdit(){delete bookmarks[editKey];bookmarks[bmEditCode.value]={name:bmEditName.value,code:bmEditCode.value};localStorage.setItem("bookmarks",JSON.stringify(bookmarks));closeBM();renderBookmarks()}
+function deleteBM(){delete bookmarks[editKey];localStorage.setItem("bookmarks",JSON.stringify(bookmarks));closeBM();renderBookmarks()}
+function closeBM(){bmCreate.style.display="none";bmEdit.style.display="none"}
+function renderBookmarks(){bookmarkBar.innerHTML="";Object.keys(bookmarks).forEach(url=>{const b=document.createElement("div");b.className="bookmarkButton";b.textContent=bookmarks[url].name;let t;b.onmousedown=()=>t=setTimeout(()=>openEdit(url),600);b.onmouseup=b.onmouseleave=()=>clearTimeout(t);b.onclick=()=>{if(url.startsWith("javascript:")){try{const s=active.iframe.contentDocument.createElement("script");s.textContent=url.replace("javascript:","");active.iframe.contentDocument.body.appendChild(s)}catch{}}else newTab(url)};bookmarkBar.appendChild(b)})}
+renderBookmarks();
 
+// URL bar
+urlBar.addEventListener("keydown", e=>{
+  if(e.key==="Enter" && active){
+    const v=normalize(urlBar.value);
+    if(v.startsWith("/?/")) openCustom(v);
+    else{
+      active.mode="proxy";
+      active.iframe.src=__uv$config.prefix+__uv$config.encodeUrl(v);
+    }
+  }
+});
+
+// Custom pages
+function openCustom(path){
+  if(active.custom) active.custom.remove();
+  const page=document.createElement("div");
+  page.className="customPage active";
+  frames.appendChild(page);
+  active.custom=page;
+  active.mode="custom";
+  active.url=path;
+
+  if(path==="/?/History"){
+    page.innerHTML=`<div class="customHeader"><h1>History</h1><button onclick="closeCustom()">Close</button></div>`;
+    historyLog.forEach(h=>page.innerHTML+=`<div class="listItem">${h.url}<br><span>${h.time}</span></div>`);
+  }
+  if(path==="/?/Bookmarks"){
+    page.innerHTML=`<div class="customHeader"><h1>Bookmarks</h1><button onclick="closeCustom()">Close</button></div>`;
+    Object.values(bookmarks).forEach(b=>page.innerHTML+=`<div class="listItem">${b.name}<br><span>${b.code}</span></div>`);
+  }
+  if(path==="/?/Settings"){
+    page.innerHTML=`<div class="customHeader"><h1>Settings</h1><button onclick="closeCustom()">Close</button></div>
+    <div class="customBody">
+      <label for="browserSelect">Default Browser for Search:</label>
+      <select id="browserSelect">
+        <option>Startpage</option>
+        <option>Google</option>
+        <option>DuckDuckGo</option>
+        <option>Brave</option>
+        <option>Bing</option>
+      </select>
+    </div>`;
+    const sel=document.getElementById("browserSelect");
+    sel.value=defaultBrowser;
+    sel.onchange=()=>{defaultBrowser=sel.value;localStorage.setItem("defaultBrowser",defaultBrowser);alert("Default browser set to: "+defaultBrowser);}
+  }
+}
+function closeCustom(){if(active.custom) active.custom.remove();active.custom=null;active.mode="proxy"}
 </script>
 </body>
 </html>
