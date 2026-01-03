@@ -161,25 +161,29 @@ function newTab(url){
   if(!url) url = browserSearchURLs[defaultBrowser];
   const iframe = document.createElement("iframe");
   frames.appendChild(iframe);
+
   const tab = document.createElement("div");
   tab.className = "tab";
-  tab.innerHTML = `<img src="" onerror="this.style.display='none'"><span>New Tab</span><span class="close">✕</span>`;
+  tab.innerHTML = `<img><span>New Tab</span><span class="close">✕</span>`;
   document.getElementById("tabsBar").insertBefore(tab, document.getElementById("newTabBtn"));
+
   const t = {iframe, tab, url, mode:"proxy", custom:null};
   tabs.push(t);
 
-  // Tab events
+  // Tab click
   tab.onclick = () => activate(t);
   tab.querySelector(".close").onclick = e => { e.stopPropagation(); closeTab(t); };
 
+  // Set favicon and title after iframe loads
   iframe.onload = () => {
-    try {
+    try{
       const doc = iframe.contentDocument;
       tab.querySelector("span").textContent = doc.title || url;
       const ico = doc.querySelector("link[rel~='icon']");
       if(ico) tab.querySelector("img").src = ico.href;
     } catch{}
   };
+
   iframe.src = __uv$config.prefix + __uv$config.encodeUrl(url);
   activate(t);
 }
