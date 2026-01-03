@@ -1,8 +1,20 @@
 {
   "name": "Prox Browser",
-  "description": "A Simulated Web Browser Ment to bypass Restrictions",
-  "version": "1.0.2",
- },
+  "description": "A Simulated Browser",
+  "version": "2.0.1",
+  "homepage": "https://github.com/crllect/focus",
+  "bugs": {
+    "email": "th15isar0bothi@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GLITCHED-OVERRIDE/Prox-Browser.git"
+  },
+  "author": {
+    "name": "Glitch Override",
+    "email": "th15isar0bothi@gmail.com",
+    "url": "https://github.com/GLITCHED-OVERRIDE/Prox-Browser"
+  },
   "keywords": [
     "proxy",
     "tomp",
