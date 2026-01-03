@@ -26,8 +26,7 @@ body{font-family:Segoe UI,Arial;background:var(--bg);color:var(--text);height:10
 .tab img{width:16px;height:16px}
 .tab span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tab .close{position:absolute;right:6px;cursor:pointer}
-#newTabBtn,#closeOverlayBtn{padding:8px;background:#111;border-radius:8px;cursor:pointer}
-#closeOverlayBtn{margin-left:auto}
+#newTabBtn{padding:8px;background:#111;border-radius:8px;cursor:pointer}
 
 /* BAR */
 #browserBar{display:flex;align-items:center;gap:6px;padding:6px;background:var(--bar)}
@@ -75,7 +74,6 @@ iframe.active,.customPage.active{display:block}
 <!-- TABS -->
 <div id="tabsBar">
   <div id="newTabBtn" onclick="newTab()">＋</div>
-  <div id="closeOverlayBtn" onclick="closeOverlay()">✕</div>
 </div>
 
 <!-- BROWSER BAR -->
@@ -188,7 +186,7 @@ function activate(t){
   (t.mode==="proxy"?t.iframe:t.custom).classList.add("active");
 }
 
-// URL Bar
+// URL BAR
 urlBar.onfocus = () => userTyping = true;
 urlBar.onblur = () => userTyping = false;
 
@@ -230,8 +228,7 @@ function trackHistory(url){
 }
 
 // CUSTOM PAGES, BOOKMARKS, DEV TOOLS, CONTROLS...
-// (You can copy the rest of your previous JS for bookmarks, settings, dev injection, etc.)
+// (Add the rest of your previous logic here for full functionality)
 </script>
-
 </body>
 </html>
