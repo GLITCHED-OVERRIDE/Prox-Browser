@@ -20,19 +20,18 @@ if ("serviceWorker" in navigator) {
   --bar:#0e0e0e;
   --tab:#1a1a1a;
   --tab-active:#202020;
-  --text:#fff
+  --text:#fff;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:Segoe UI,Arial;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
 
-/* Container layout */
+/* Layout */
 #proxyOverlay{display:flex;flex-direction:column;height:100vh}
 
 /* Tabs bar */
 #tabsBar{display:flex;align-items:flex-end;background:var(--panel);padding:4px 6px;gap:4px;flex-shrink:0}
 .tab{display:flex;align-items:center;gap:6px;padding:8px 20px 8px 10px;background:var(--tab);border-radius:8px 8px 0 0;cursor:pointer;position:relative;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tab.active{background:var(--tab-active)}
-.tab img{width:16px;height:16px}
 .tab span{overflow:hidden;text-overflow:ellipsis}
 .tab .close{position:absolute;right:6px;cursor:pointer}
 #newTabBtn,#closeOverlayBtn{padding:6px 12px;background:#111;border-radius:6px;cursor:pointer}
@@ -82,13 +81,11 @@ iframe.active,.customPage.active{display:block}
 <body>
 
 <div id="proxyOverlay">
-  <!-- Tabs bar -->
   <div id="tabsBar">
     <div id="newTabBtn">＋</div>
     <div id="closeOverlayBtn">✕</div>
   </div>
 
-  <!-- Browser bar -->
   <div id="browserBar">
     <button class="ctrl" id="backBtn">⟵</button>
     <button class="ctrl" id="forwardBtn">⟶</button>
@@ -99,7 +96,6 @@ iframe.active,.customPage.active{display:block}
     </div>
     <button class="ctrl" id="fullscreenBtn">⛶</button>
     <button class="ctrl" id="menuBtn">⋮</button>
-
     <div id="menuPanel">
       <button id="menuNewTab">New Tab</button>
       <button id="menuHistory">History</button>
@@ -109,10 +105,7 @@ iframe.active,.customPage.active{display:block}
     </div>
   </div>
 
-  <!-- Bookmark bar -->
   <div id="bookmarkBar"></div>
-
-  <!-- Content / Iframe -->
   <div id="frames"></div>
 </div>
 
@@ -137,30 +130,33 @@ iframe.active,.customPage.active{display:block}
 </div>
 
 <script>
-// --- DOM ---
 const overlay=document.getElementById("proxyOverlay");
 const frames=document.getElementById("frames");
 const urlBar=document.getElementById("urlBar");
 const star=document.getElementById("bookmarkStar");
 const menu=document.getElementById("menuPanel");
 const bookmarkBar=document.getElementById("bookmarkBar");
-const menuBtn=document.getElementById("menuBtn");
 const newTabBtn=document.getElementById("newTabBtn");
 const closeOverlayBtn=document.getElementById("closeOverlayBtn");
 
-// --- State ---
 let tabs=[],active=null;
 let bookmarks=JSON.parse(localStorage.getItem("bookmarks")||"{}");
 let historyLog=JSON.parse(localStorage.getItem("history")||"[]");
 let lastURL=null,userTyping=false,editKey=null;
 let defaultBrowser=localStorage.getItem("defaultBrowser")||"Startpage";
-const browserSearchURLs={"Startpage":"https://www.startpage.com/sp/search?q=","Google":"https://www.google.com/search?q=","DuckDuckGo":"https://duckduckgo.com/?q=","Brave":"https://search.brave.com/search?q=","Bing":"https://www.bing.com/search?q="};
+const browserSearchURLs={
+  "Startpage":"https://www.startpage.com/sp/search?q=",
+  "Google":"https://www.google.com/search?q=",
+  "DuckDuckGo":"https://duckduckgo.com/?q=",
+  "Brave":"https://search.brave.com/search?q=",
+  "Bing":"https://www.bing.com/search?q="
+};
 
-// --- Menu ---
-menuBtn.onclick=()=>menu.style.display="flex";
+// Menu toggle
+document.getElementById("menuBtn").onclick=()=>menu.style.display="flex";
 menu.onmouseleave=()=>menu.style.display="none";
 
-// --- Utility ---
+// Normalize search/URL
 function normalize(v){
   if(v.startsWith("/?/")) return v;
   if(!v.includes(".")) return browserSearchURLs[defaultBrowser]+encodeURIComponent(v);
@@ -168,7 +164,7 @@ function normalize(v){
   return v;
 }
 
-// --- Tabs ---
+// Tabs
 function newTab(url){
   if(!url) url=browserSearchURLs[defaultBrowser];
   overlay.style.display="flex";
@@ -194,20 +190,20 @@ function activate(t){
 }
 function closeTab(t){t.tab.remove();t.iframe.remove();if(t.custom)t.custom.remove();tabs=tabs.filter(x=>x!==t);tabs.length?activate(tabs.at(-1)):overlay.style.display="none";}
 
-// --- Controls ---
+// Controls
 document.getElementById("backBtn").onclick=()=>active?.iframe.contentWindow.history.back();
 document.getElementById("forwardBtn").onclick=()=>active?.iframe.contentWindow.history.forward();
 document.getElementById("reloadBtn").onclick=()=>active?.iframe.contentWindow.location.reload();
 document.getElementById("fullscreenBtn").onclick=()=>active?.iframe.requestFullscreen();
 
-// --- Menu buttons ---
+// Menu buttons
 document.getElementById("menuNewTab").onclick=newTab;
 document.getElementById("menuHistory").onclick=()=>openCustom("/?/History");
 document.getElementById("menuBookmarks").onclick=()=>openCustom("/?/Bookmarks");
 document.getElementById("menuDev").onclick=injectDev;
 document.getElementById("menuSettings").onclick=()=>openCustom("/?/Settings");
 
-// --- Auto-open first tab ---
+// Open first tab automatically
 window.addEventListener("load",()=>newTab());
 </script>
 </body>
