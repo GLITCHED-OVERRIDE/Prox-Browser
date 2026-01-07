@@ -123,6 +123,28 @@ iframe.active,.customPage.active{display:block}
 </div>
 
 <script>
+  // =================== HISTORY FIX ===================
+function refreshHistoryPage(){
+  if (typeof active !== "undefined" && active.custom) {
+    active.custom.remove();
+    active.custom = null;
+  }
+  openCustom("/?/History");
+}
+
+function deleteHistoryItem(index){
+  historyLog.splice(index, 1);
+  localStorage.setItem("history", JSON.stringify(historyLog));
+  refreshHistoryPage();
+}
+
+function clearHistory(){
+  if (!confirm("Clear all history?")) return;
+  historyLog.length = 0;
+  localStorage.setItem("history", "[]");
+  refreshHistoryPage();
+}
+// ==================================================
 // ------------------- PROXY BROWSER LOGIC -------------------
 const frames = document.getElementById("frames");
 const urlBar = document.getElementById("urlBar");
@@ -283,10 +305,30 @@ function openCustom(path){
   active.mode="custom";
   active.url=path;
 
-  if(path==="/?/History"){
-    page.innerHTML=`<div class="customHeader"><h1>History</h1><button onclick="closeCustom()">Close</button></div>`;
-    historyLog.forEach(h=>page.innerHTML+=`<div class="listItem">${h.url}<br><span>${h.time}</span></div>`);
-  }
+if(path==="/?/History"){
+  page.innerHTML=`
+    <div class="customHeader">
+      <h1>History</h1>
+      <div>
+        <button class="deleteBtn" onclick="clearHistory()">Clear All</button>
+        <button onclick="closeCustom()">Close</button>
+      </div>
+    </div>
+  `;
+
+  historyLog.forEach((h,i)=>{
+    page.innerHTML+=`
+      <div class="listItem" style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+        <div>
+          ${h.url}<br>
+          <span>${h.time}</span>
+        </div>
+        <button class="deleteBtn" onclick="deleteHistoryItem(${i})">✕</button>
+      </div>
+    `;
+  });
+}
+
   if(path==="/?/Bookmarks"){
     page.innerHTML=`<div class="customHeader"><h1>Bookmarks</h1><button onclick="closeCustom()">Close</button></div>`;
     Object.values(bookmarks).forEach(b=>page.innerHTML+=`<div class="listItem">${b.name}<br><span>${b.code}</span></div>`);
@@ -325,6 +367,11 @@ function injectDev(){
 window.onload = ()=>{ newTab(browserSearchURLs[defaultBrowser]); }
 
 </script>
-
+<script>
+window.addEventListener("beforeunload", function (e) {
+  e.preventDefault();
+  e.returnValue = "";
+});
+</script>
 </body>
 </html>
