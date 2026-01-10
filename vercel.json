@@ -10,7 +10,7 @@
   "rewrites": [
     {
       "source": "/:path*",
-      "destination": "/index.js"
+      "destination": "public/index.html"
     }
   ]
 }
