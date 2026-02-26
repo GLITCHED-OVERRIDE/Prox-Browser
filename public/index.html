@@ -16,11 +16,174 @@ if ("serviceWorker" in navigator) {
 }
 </script>
 <style>
-/* SIDEBAR OVERLAY */
+:root{
+  --bg:#07090f;
+  --panel:rgba(18,20,28,.85);
+  --bar:rgba(15,17,24,.9);
+  --tab:rgba(30,33,45,.7);
+  --tab-active:linear-gradient(135deg,#1f2333,#2b3150);
+  --accent:#5b8cff;
+  --danger:#ff4d4d;
+  --text:#e6e9f2;
+  --muted:#9aa3b2;
+  --glass:blur(14px);
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  font-family:Inter,Segoe UI,system-ui;
+  background:radial-gradient(circle at 20% 20%,#0e1220 0%,#07090f 60%);
+  color:var(--text);
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+/* ================= TABS ================= */
+
+#tabsBar{
+  display:flex;
+  align-items:flex-end;
+  gap:6px;
+  padding:6px;
+  background:var(--panel);
+  backdrop-filter:var(--glass);
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+
+.tab{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 32px 8px 12px;
+  background:var(--tab);
+  border-radius:12px 12px 0 0;
+  cursor:pointer;
+  position:relative;
+  max-width:220px;
+  overflow:hidden;
+  transition:.2s ease;
+}
+
+.tab:hover{
+  background:rgba(60,70,110,.4);
+}
+
+.tab.active{
+  background:var(--tab-active);
+  box-shadow:0 4px 15px rgba(0,0,0,.4);
+}
+
+.tab img{
+  width:16px;
+  height:16px;
+}
+
+.tab span{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  font-size:.9rem;
+}
+
+.tab .close{
+  position:absolute;
+  right:8px;
+  font-size:.9rem;
+  opacity:.6;
+  transition:.2s;
+}
+.tab .close:hover{
+  opacity:1;
+  color:var(--danger);
+}
+
+#newTabBtn{
+  padding:8px 14px;
+  border-radius:10px;
+  background:rgba(255,255,255,.05);
+  cursor:pointer;
+  transition:.2s;
+}
+#newTabBtn:hover{
+  background:var(--accent);
+  color:white;
+}
+
+/* ================= BROWSER BAR ================= */
+
+#browserBar{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 12px;
+  background:var(--bar);
+  backdrop-filter:var(--glass);
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+
+.ctrl{
+  padding:6px 10px;
+  background:rgba(255,255,255,.06);
+  border:none;
+  color:var(--text);
+  border-radius:8px;
+  cursor:pointer;
+  transition:.2s;
+}
+.ctrl:hover{
+  background:var(--accent);
+  color:white;
+}
+
+#urlWrap{
+  position:relative;
+  flex:1;
+}
+
+#urlBar{
+  width:100%;
+  padding:10px 42px 10px 14px;
+  border-radius:12px;
+  border:none;
+  background:rgba(0,0,0,.6);
+  color:var(--text);
+  font-family:monospace;
+  font-size:.9rem;
+  outline:none;
+  transition:.2s;
+}
+#urlBar:focus{
+  box-shadow:0 0 0 2px var(--accent);
+}
+
+#bookmarkStar{
+  position:absolute;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:20px;
+  cursor:pointer;
+  opacity:.7;
+  transition:.2s;
+}
+#bookmarkStar:hover{
+  opacity:1;
+  color:gold;
+}
+
+/* ================= SIDEBAR MENU ================= */
+
 #menuPanel{
   position:fixed;
   top:0;
-  right:-320px; /* initially hidden */
+  right:-320px;
   height:100vh;
   width:280px;
   background:rgba(18,20,28,.97);
@@ -39,7 +202,6 @@ if ("serviceWorker" in navigator) {
   right:0;
 }
 
-/* Sidebar header */
 #menuPanelHeader{
   display:flex;
   justify-content:space-between;
@@ -63,7 +225,6 @@ if ("serviceWorker" in navigator) {
   color:var(--accent);
 }
 
-/* Sidebar buttons */
 #menuPanel button{
   padding:10px 14px;
   background:rgba(255,255,255,.06);
@@ -80,7 +241,7 @@ if ("serviceWorker" in navigator) {
   color:white;
 }
 
-/* overlay behind sidebar for click-to-close */
+/* overlay behind sidebar */
 #menuOverlay{
   position:fixed;
   inset:0;
@@ -91,6 +252,115 @@ if ("serviceWorker" in navigator) {
 }
 #menuOverlay.show{
   display:block;
+}
+
+/* ================= BOOKMARK BAR ================= */
+
+#bookmarkBar{
+  display:flex;
+  gap:8px;
+  padding:8px;
+  background:var(--panel);
+  backdrop-filter:var(--glass);
+  overflow-x:auto;
+}
+
+.bookmarkButton{
+  padding:6px 12px;
+  background:rgba(255,255,255,.06);
+  border-radius:999px;
+  cursor:pointer;
+  font-size:.85rem;
+  transition:.2s;
+}
+.bookmarkButton:hover{
+  background:var(--accent);
+  color:white;
+}
+
+/* ================= CONTENT ================= */
+
+#frames{
+  flex:1;
+  position:relative;
+}
+
+iframe,.customPage{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  border:none;
+  display:none;
+}
+
+iframe.active,.customPage.active{
+  display:block;
+}
+
+.customPage{
+  background:linear-gradient(145deg,#0c0f18,#0a0c14);
+  padding:32px;
+  overflow:auto;
+}
+
+/* ================= MODALS ================= */
+
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.65);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  backdrop-filter:blur(6px);
+  z-index:10001;
+}
+
+.modalBox{
+  background:#11131c;
+  padding:28px;
+  border-radius:20px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  min-width:320px;
+  box-shadow:0 20px 60px rgba(0,0,0,.6);
+  animation:fadeIn .2s ease;
+}
+
+.modalBox input{
+  padding:10px 14px;
+  background:#0b0d14;
+  border:none;
+  color:white;
+  border-radius:10px;
+}
+
+.modalBox button{
+  padding:10px;
+  background:rgba(255,255,255,.08);
+  color:white;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  transition:.2s;
+}
+.modalBox button:hover{
+  background:var(--accent);
+}
+
+.deleteBtn{
+  background:var(--danger) !important;
+}
+.deleteBtn:hover{
+  filter:brightness(1.2);
+}
+
+/* ================= ANIMATIONS ================= */
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(-6px)}
+  to{opacity:1;transform:translateY(0)}
 }
 </style>
 </head>
