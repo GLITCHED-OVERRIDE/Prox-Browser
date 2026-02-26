@@ -29,11 +29,7 @@ if ("serviceWorker" in navigator) {
   --bar-height:46px;
 }
 
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
+*{margin:0;padding:0;box-sizing:border-box}
 
 body{
   font-family:Segoe UI,Arial,system-ui;
@@ -45,10 +41,7 @@ body{
   overflow:hidden;
 }
 
-/* ========================= */
 /* TABS */
-/* ========================= */
-
 #tabsBar{
   height:var(--tabs-height);
   display:flex;
@@ -56,7 +49,6 @@ body{
   gap:6px;
   padding:0 8px;
   background:var(--panel);
-  border-bottom:1px solid rgba(255,255,255,.05);
 }
 
 .tab{
@@ -71,11 +63,6 @@ body{
   position:relative;
   max-width:200px;
   overflow:hidden;
-  transition:.15s ease;
-}
-
-.tab:hover{
-  background:#222c38;
 }
 
 .tab.active{
@@ -111,18 +98,9 @@ body{
   background:var(--tab);
   border-radius:var(--radius);
   cursor:pointer;
-  font-size:18px;
-  transition:.15s;
 }
 
-#newTabBtn:hover{
-  background:#222c38;
-}
-
-/* ========================= */
-/* BROWSER BAR */
-/* ========================= */
-
+/* BAR */
 #browserBar{
   height:var(--bar-height);
   display:flex;
@@ -141,23 +119,16 @@ body{
   color:var(--text);
   border-radius:var(--radius);
   cursor:pointer;
-  font-size:14px;
   display:flex;
   align-items:center;
   justify-content:center;
-  transition:.15s;
 }
 
 .ctrl:hover{
   background:#222c38;
 }
 
-/* URL */
-
-#urlWrap{
-  flex:1;
-  position:relative;
-}
+#urlWrap{flex:1;position:relative}
 
 #urlBar{
   height:30px;
@@ -171,9 +142,7 @@ body{
   outline:none;
 }
 
-#urlBar:focus{
-  border-color:var(--accent);
-}
+#urlBar:focus{border-color:var(--accent)}
 
 #bookmarkStar{
   position:absolute;
@@ -185,15 +154,12 @@ body{
   opacity:.6;
 }
 
-#bookmarkStar:hover{
+#bookmarkStar.active{
+  color:gold;
   opacity:1;
-  color:var(--accent);
 }
 
-/* ========================= */
 /* BOOKMARK BAR */
-/* ========================= */
-
 #bookmarkBar{
   height:36px;
   display:flex;
@@ -214,24 +180,16 @@ body{
   align-items:center;
   cursor:pointer;
   white-space:nowrap;
-  transition:.15s;
 }
 
-.bookmarkButton:hover{
-  background:#222c38;
-}
-
-/* ========================= */
-/* FRAME AREA */
-/* ========================= */
-
+/* FRAME */
 #frames{
   flex:1;
   position:relative;
   background:black;
 }
 
-iframe{
+iframe,.customPage{
   position:absolute;
   inset:0;
   width:100%;
@@ -240,25 +198,20 @@ iframe{
   display:none;
 }
 
-iframe.active{
+iframe.active,.customPage.active{
   display:block;
 }
 
-/* ========================= */
 /* MENU */
-/* ========================= */
-
 #menuPanel{
   position:absolute;
   top:var(--bar-height);
   right:10px;
   background:#1b2430;
   border-radius:10px;
-  box-shadow:0 10px 30px rgba(0,0,0,.6);
   display:none;
   flex-direction:column;
   min-width:180px;
-  overflow:hidden;
 }
 
 #menuPanel button{
@@ -289,7 +242,7 @@ iframe.active{
 
   <div id="urlWrap">
     <input id="urlBar" placeholder="Enter URL">
-    <span id="bookmarkStar">☆</span>
+    <span id="bookmarkStar" onclick="toggleBookmark()">☆</span>
   </div>
 
   <button class="ctrl" onclick="fullscreen()">⛶</button>
@@ -297,6 +250,9 @@ iframe.active{
 
   <div id="menuPanel">
     <button onclick="newTab()">New Tab</button>
+    <button onclick="openHistory()">History</button>
+    <button onclick="openBookmarks()">Bookmarks</button>
+    <button onclick="injectDev()">Dev Tools</button>
   </div>
 </div>
 
@@ -306,8 +262,11 @@ iframe.active{
 <script>
 const frames = document.getElementById("frames");
 const urlBar = document.getElementById("urlBar");
-let tabs = [];
-let active = null;
+const bookmarkStar = document.getElementById("bookmarkStar");
+
+let tabs=[], active=null;
+let bookmarks=JSON.parse(localStorage.getItem("bookmarks")||"[]");
+let historyData=JSON.parse(localStorage.getItem("history")||"[]");
 
 function normalize(v){
   if(!v.includes(".")) return "https://www.startpage.com/sp/search?q="+encodeURIComponent(v);
@@ -316,26 +275,26 @@ function normalize(v){
 }
 
 function newTab(url){
-  if(!url) url = "https://www.startpage.com/";
+  if(!url) url="https://www.startpage.com/";
 
-  const iframe = document.createElement("iframe");
+  const iframe=document.createElement("iframe");
   frames.appendChild(iframe);
 
-  const tab = document.createElement("div");
-  tab.className = "tab";
-  tab.innerHTML = `<span>New Tab</span><span class="close">✕</span>`;
-  document.getElementById("tabsBar").insertBefore(tab, document.getElementById("newTabBtn"));
+  const tab=document.createElement("div");
+  tab.className="tab";
+  tab.innerHTML=`<span>New Tab</span><span class="close">✕</span>`;
+  document.getElementById("tabsBar").insertBefore(tab,document.getElementById("newTabBtn"));
 
-  const t = {iframe, tab, url};
+  const t={iframe,tab,url};
   tabs.push(t);
 
-  tab.onclick = () => activate(t);
-  tab.querySelector(".close").onclick = e => {
+  tab.onclick=()=>activate(t);
+  tab.querySelector(".close").onclick=e=>{
     e.stopPropagation();
     closeTab(t);
   };
 
-  iframe.src = __uv$config.prefix + __uv$config.encodeUrl(url);
+  iframe.src=__uv$config.prefix+__uv$config.encodeUrl(url);
   activate(t);
 }
 
@@ -344,35 +303,90 @@ function activate(t){
     x.tab.classList.remove("active");
     x.iframe.classList.remove("active");
   });
-  active = t;
+  active=t;
   t.tab.classList.add("active");
   t.iframe.classList.add("active");
+  urlBar.value=t.url;
+  updateBookmarkIcon();
 }
 
-urlBar.addEventListener("keydown", e=>{
-  if(e.key !== "Enter") return;
-  const v = normalize(urlBar.value);
-  active.iframe.src = __uv$config.prefix + __uv$config.encodeUrl(v);
+urlBar.addEventListener("keydown",e=>{
+  if(e.key!=="Enter") return;
+  const v=normalize(urlBar.value);
+  active.url=v;
+  active.iframe.src=__uv$config.prefix+__uv$config.encodeUrl(v);
+  historyData.unshift(v);
+  localStorage.setItem("history",JSON.stringify(historyData));
+  updateBookmarkIcon();
 });
+
+function toggleBookmark(){
+  if(!active) return;
+  const index=bookmarks.indexOf(active.url);
+  if(index>-1) bookmarks.splice(index,1);
+  else bookmarks.push(active.url);
+  localStorage.setItem("bookmarks",JSON.stringify(bookmarks));
+  renderBookmarks();
+  updateBookmarkIcon();
+}
+
+function updateBookmarkIcon(){
+  bookmarkStar.classList.toggle("active",bookmarks.includes(active?.url));
+}
+
+function renderBookmarks(){
+  const bar=document.getElementById("bookmarkBar");
+  bar.innerHTML="";
+  bookmarks.forEach(url=>{
+    const btn=document.createElement("div");
+    btn.className="bookmarkButton";
+    btn.textContent=url;
+    btn.onclick=()=>newTab(url);
+    bar.appendChild(btn);
+  });
+}
+
+function openHistory(){
+  openCustom("History",historyData.map(h=>`<div>${h}</div>`).join(""));
+}
+
+function openBookmarks(){
+  openCustom("Bookmarks",bookmarks.map(b=>`<div>${b}</div>`).join(""));
+}
+
+function openCustom(title,content){
+  const page=document.createElement("div");
+  page.className="customPage active";
+  page.innerHTML=`<h2 style="padding:20px">${title}</h2><div style="padding:20px">${content}</div>`;
+  frames.appendChild(page);
+  tabs.forEach(x=>x.iframe.classList.remove("active"));
+}
+
+function injectDev(){
+  active?.iframe.contentWindow.eval("alert('Dev Tools Injected')");
+}
 
 function goBack(){active?.iframe.contentWindow.history.back();}
 function goForward(){active?.iframe.contentWindow.history.forward();}
 function reloadTab(){active?.iframe.contentWindow.location.reload();}
 function fullscreen(){active?.iframe.requestFullscreen();}
 function toggleMenu(){
-  const m = document.getElementById("menuPanel");
-  m.style.display = m.style.display === "flex" ? "none" : "flex";
+  const m=document.getElementById("menuPanel");
+  m.style.display=m.style.display==="flex"?"none":"flex";
 }
 
 function closeTab(t){
   t.tab.remove();
   t.iframe.remove();
-  tabs = tabs.filter(x=>x!==t);
+  tabs=tabs.filter(x=>x!==t);
   if(tabs.length) activate(tabs.at(-1));
   else newTab();
 }
 
-window.onload = ()=> newTab();
+window.onload=()=>{
+  renderBookmarks();
+  newTab();
+}
 </script>
 
 </body>
