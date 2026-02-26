@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Glitch Hub</title>
+<title>Chromium Style Proxy</title>
 
 <!-- Ultraviolet -->
 <script src="/uv/uv.bundle.js"></script>
 <script src="/uv/uv.config.js"></script>
 <script>
-if ("serviceWorker" in navigator) {
+if ("serviceWorker" in navigator") {
   navigator.serviceWorker.register("/uv/sw.js", {
     scope: __uv$config.prefix
   });
@@ -18,22 +18,22 @@ if ("serviceWorker" in navigator) {
 
 <style>
 :root{
-  --bg:#0f141a;
-  --panel:#161d26;
-  --tab:#1c2530;
-  --tab-active:#243041;
-  --accent:#3ea6ff;
-  --text:#e6edf3;
-  --radius:8px;
-  --tabs-height:40px;
-  --bar-height:46px;
+  --chrome-bg:#202124;
+  --toolbar:#2b2c2f;
+  --tab:#2f3033;
+  --tab-active:#3c4043;
+  --omnibox:#303134;
+  --hover:#3a3b3f;
+  --border:#3c4043;
+  --text:#e8eaed;
+  --accent:#8ab4f8;
 }
 
 *{margin:0;padding:0;box-sizing:border-box}
 
 body{
-  font-family:Segoe UI,Arial,system-ui;
-  background:var(--bg);
+  font-family:Segoe UI,Arial,sans-serif;
+  background:var(--chrome-bg);
   color:var(--text);
   height:100vh;
   display:flex;
@@ -41,33 +41,39 @@ body{
   overflow:hidden;
 }
 
-/* TABS */
+/* ================= TABS ================= */
+
 #tabsBar{
-  height:var(--tabs-height);
+  height:36px;
   display:flex;
   align-items:flex-end;
-  gap:6px;
-  padding:0 8px;
-  background:var(--panel);
+  padding:0 6px;
+  background:var(--chrome-bg);
+  border-bottom:1px solid var(--border);
 }
 
 .tab{
-  height:30px;
+  height:32px;
+  min-width:120px;
+  max-width:220px;
+  background:var(--tab);
+  margin-right:4px;
+  padding:0 28px 0 12px;
   display:flex;
   align-items:center;
-  padding:0 28px 0 12px;
-  background:var(--tab);
-  border-radius:var(--radius) var(--radius) 0 0;
+  border-radius:8px 8px 0 0;
   font-size:13px;
   cursor:pointer;
   position:relative;
-  max-width:200px;
   overflow:hidden;
 }
 
 .tab.active{
   background:var(--tab-active);
-  box-shadow:0 -2px 0 var(--accent) inset;
+}
+
+.tab:hover{
+  background:var(--hover);
 }
 
 .tab span{
@@ -81,43 +87,44 @@ body{
   right:8px;
   font-size:12px;
   opacity:.6;
-  cursor:pointer;
 }
 
 .tab .close:hover{
   opacity:1;
-  color:#ff5f56;
 }
 
 #newTabBtn{
-  height:30px;
-  width:30px;
+  height:28px;
+  width:28px;
   display:flex;
   align-items:center;
   justify-content:center;
-  background:var(--tab);
-  border-radius:var(--radius);
+  border-radius:50%;
   cursor:pointer;
 }
 
-/* BAR */
+#newTabBtn:hover{
+  background:var(--hover);
+}
+
+/* ================= TOOLBAR ================= */
+
 #browserBar{
-  height:var(--bar-height);
+  height:48px;
   display:flex;
   align-items:center;
-  gap:8px;
-  padding:0 10px;
-  background:var(--panel);
+  gap:6px;
+  padding:0 8px;
+  background:var(--toolbar);
 }
 
 .ctrl{
-  height:30px;
-  min-width:34px;
-  padding:0 10px;
-  background:var(--tab);
+  width:32px;
+  height:32px;
+  border-radius:50%;
   border:none;
+  background:transparent;
   color:var(--text);
-  border-radius:var(--radius);
   cursor:pointer;
   display:flex;
   align-items:center;
@@ -125,68 +132,76 @@ body{
 }
 
 .ctrl:hover{
-  background:#222c38;
+  background:var(--hover);
 }
 
-#urlWrap{flex:1;position:relative}
+/* Omnibox */
+
+#urlWrap{
+  flex:1;
+  display:flex;
+  align-items:center;
+}
 
 #urlBar{
-  height:30px;
   width:100%;
-  padding:0 38px 0 12px;
-  border-radius:var(--radius);
-  border:1px solid rgba(255,255,255,.05);
-  background:#0f1620;
+  height:32px;
+  border-radius:16px;
+  border:1px solid var(--border);
+  background:var(--omnibox);
   color:var(--text);
+  padding:0 40px 0 16px;
   font-size:13px;
   outline:none;
 }
 
-#urlBar:focus{border-color:var(--accent)}
+#urlBar:focus{
+  border-color:var(--accent);
+}
 
 #bookmarkStar{
   position:absolute;
-  right:10px;
-  top:50%;
-  transform:translateY(-50%);
-  font-size:16px;
+  right:20px;
+  font-size:14px;
   cursor:pointer;
   opacity:.6;
 }
 
 #bookmarkStar.active{
-  color:gold;
+  color:#fdd663;
   opacity:1;
 }
 
-/* BOOKMARK BAR */
+/* ================= BOOKMARK BAR ================= */
+
 #bookmarkBar{
-  height:36px;
+  height:30px;
   display:flex;
   align-items:center;
-  gap:6px;
-  padding:0 10px;
-  background:#121820;
+  gap:8px;
+  padding:0 12px;
+  background:var(--chrome-bg);
+  border-bottom:1px solid var(--border);
   overflow-x:auto;
 }
 
 .bookmarkButton{
-  height:24px;
-  padding:0 12px;
-  background:var(--tab);
-  border-radius:20px;
+  padding:4px 10px;
   font-size:12px;
-  display:flex;
-  align-items:center;
+  background:var(--tab);
+  border-radius:4px;
   cursor:pointer;
-  white-space:nowrap;
 }
 
-/* FRAME */
+.bookmarkButton:hover{
+  background:var(--hover);
+}
+
+/* ================= CONTENT ================= */
+
 #frames{
   flex:1;
   position:relative;
-  background:black;
 }
 
 iframe,.customPage{
@@ -202,29 +217,32 @@ iframe.active,.customPage.active{
   display:block;
 }
 
-/* MENU */
+/* ================= MENU ================= */
+
 #menuPanel{
   position:absolute;
-  top:var(--bar-height);
-  right:10px;
-  background:#1b2430;
-  border-radius:10px;
+  top:48px;
+  right:12px;
+  background:var(--toolbar);
+  border:1px solid var(--border);
+  border-radius:8px;
   display:none;
   flex-direction:column;
   min-width:180px;
+  padding:6px 0;
 }
 
 #menuPanel button{
-  padding:10px;
-  background:none;
+  padding:8px 16px;
   border:none;
+  background:none;
   color:var(--text);
   text-align:left;
   cursor:pointer;
 }
 
 #menuPanel button:hover{
-  background:#243041;
+  background:var(--hover);
 }
 </style>
 </head>
@@ -232,17 +250,17 @@ iframe.active,.customPage.active{
 <body>
 
 <div id="tabsBar">
-  <div id="newTabBtn" onclick="newTab()">+</div>
+  <div id="newTabBtn" onclick="newTab()">＋</div>
 </div>
 
 <div id="browserBar">
-  <button class="ctrl" onclick="goBack()">←</button>
-  <button class="ctrl" onclick="goForward()">→</button>
+  <button class="ctrl" onclick="goBack()">⟵</button>
+  <button class="ctrl" onclick="goForward()">⟶</button>
   <button class="ctrl" onclick="reloadTab()">⟳</button>
 
   <div id="urlWrap">
-    <input id="urlBar" placeholder="Enter URL">
-    <span id="bookmarkStar" onclick="toggleBookmark()">☆</span>
+    <input id="urlBar" placeholder="Search or type URL">
+    <span id="bookmarkStar" onclick="toggleBookmark()">★</span>
   </div>
 
   <button class="ctrl" onclick="fullscreen()">⛶</button>
@@ -260,11 +278,11 @@ iframe.active,.customPage.active{
 <div id="frames"></div>
 
 <script>
-const frames = document.getElementById("frames");
-const urlBar = document.getElementById("urlBar");
-const bookmarkStar = document.getElementById("bookmarkStar");
+const frames=document.getElementById("frames");
+const urlBar=document.getElementById("urlBar");
+const bookmarkStar=document.getElementById("bookmarkStar");
 
-let tabs=[], active=null;
+let tabs=[],active=null;
 let bookmarks=JSON.parse(localStorage.getItem("bookmarks")||"[]");
 let historyData=JSON.parse(localStorage.getItem("history")||"[]");
 
@@ -276,14 +294,13 @@ function normalize(v){
 
 function newTab(url){
   if(!url) url="https://www.startpage.com/";
-
   const iframe=document.createElement("iframe");
   frames.appendChild(iframe);
 
   const tab=document.createElement("div");
   tab.className="tab";
   tab.innerHTML=`<span>New Tab</span><span class="close">✕</span>`;
-  document.getElementById("tabsBar").insertBefore(tab,document.getElementById("newTabBtn"));
+  document.getElementById("tabsBar").appendChild(tab);
 
   const t={iframe,tab,url};
   tabs.push(t);
@@ -322,16 +339,12 @@ urlBar.addEventListener("keydown",e=>{
 
 function toggleBookmark(){
   if(!active) return;
-  const index=bookmarks.indexOf(active.url);
-  if(index>-1) bookmarks.splice(index,1);
+  const i=bookmarks.indexOf(active.url);
+  if(i>-1) bookmarks.splice(i,1);
   else bookmarks.push(active.url);
   localStorage.setItem("bookmarks",JSON.stringify(bookmarks));
   renderBookmarks();
   updateBookmarkIcon();
-}
-
-function updateBookmarkIcon(){
-  bookmarkStar.classList.toggle("active",bookmarks.includes(active?.url));
 }
 
 function renderBookmarks(){
@@ -347,19 +360,11 @@ function renderBookmarks(){
 }
 
 function openHistory(){
-  openCustom("History",historyData.map(h=>`<div>${h}</div>`).join(""));
+  alert(historyData.join("\n"));
 }
 
 function openBookmarks(){
-  openCustom("Bookmarks",bookmarks.map(b=>`<div>${b}</div>`).join(""));
-}
-
-function openCustom(title,content){
-  const page=document.createElement("div");
-  page.className="customPage active";
-  page.innerHTML=`<h2 style="padding:20px">${title}</h2><div style="padding:20px">${content}</div>`;
-  frames.appendChild(page);
-  tabs.forEach(x=>x.iframe.classList.remove("active"));
+  alert(bookmarks.join("\n"));
 }
 
 function injectDev(){
