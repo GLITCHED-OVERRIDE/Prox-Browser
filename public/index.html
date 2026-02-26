@@ -15,59 +15,229 @@ if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/uv/sw.js", { scope: __uv$config.prefix });
 }
 </script>
-
 <style>
-:root{--bg:#0a0a0a;--panel:#121212;--bar:#0e0e0e;--tab:#1a1a1a;--tab-active:#202020;--text:#fff}
+:root{
+  --bg:#0b0f14;
+  --panel:rgba(20,25,32,.85);
+  --tab:#1a222c;
+  --tab-active:#243041;
+  --accent:#4da3ff;
+  --text:#e6edf3;
+  --muted:#8b949e;
+}
+
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Segoe UI,Arial;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
 
-/* TABS */
-#tabsBar{display:flex;align-items:flex-end;background:var(--panel);padding:4px}
-.tab{display:flex;align-items:center;gap:6px;padding:8px 26px 8px 10px;background:var(--tab);border-radius:8px 8px 0 0;cursor:pointer;position:relative;max-width:200px;overflow:hidden}
-.tab.active{background:var(--tab-active)}
-.tab img{width:16px;height:16px;flex-shrink:0}
-.tab span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tab .close{position:absolute;right:6px;cursor:pointer}
-#newTabBtn{padding:8px;background:#111;border-radius:8px;cursor:pointer}
+body{
+  font-family:Inter,Segoe UI,system-ui;
+  background:linear-gradient(160deg,#0b0f14,#0f1621);
+  color:var(--text);
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
 
-/* BAR */
-#browserBar{display:flex;align-items:center;gap:6px;padding:6px;background:var(--bar)}
-.ctrl{padding:6px 10px;background:#111;border:none;color:white;border-radius:6px;cursor:pointer}
-.ctrl:hover{background:#222}
-#urlWrap{position:relative;flex:1}
-#urlBar{width:100%;padding:8px 36px 8px 10px;background:black;border:none;color:white;font-family:monospace}
-#bookmarkStar{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:22px;cursor:pointer}
+/* TABS BAR */
+#tabsBar{
+  display:flex;
+  align-items:flex-end;
+  gap:6px;
+  padding:8px 10px 0;
+  backdrop-filter:blur(14px);
+  background:var(--panel);
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
 
-/* MENU */
-#menuBtn{font-size:22px}
-#menuPanel{position:absolute;top:42px;right:8px;background:#111;border-radius:10px;display:none;flex-direction:column;min-width:160px;z-index:10000}
-#menuPanel button{padding:10px;background:none;border:none;color:white;text-align:left;cursor:pointer}
-#menuPanel button:hover{background:#222}
+.tab{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 30px 8px 14px;
+  background:var(--tab);
+  border-radius:10px 10px 0 0;
+  cursor:pointer;
+  position:relative;
+  max-width:220px;
+  overflow:hidden;
+  transition:.25s ease;
+  font-size:14px;
+}
+
+.tab:hover{
+  background:#202b38;
+}
+
+.tab.active{
+  background:var(--tab-active);
+  box-shadow:0 -2px 0 var(--accent) inset;
+}
+
+.tab span{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.tab .close{
+  position:absolute;
+  right:8px;
+  font-size:13px;
+  opacity:.6;
+  transition:.2s;
+}
+
+.tab .close:hover{
+  opacity:1;
+  color:#ff5f56;
+}
+
+/* NEW TAB */
+#newTabBtn{
+  padding:6px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  background:#16202a;
+  transition:.2s;
+}
+#newTabBtn:hover{
+  background:#1e2a38;
+}
+
+/* BROWSER BAR */
+#browserBar{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:10px;
+  background:var(--panel);
+  backdrop-filter:blur(14px);
+}
+
+.ctrl{
+  padding:8px 10px;
+  background:#16202a;
+  border:none;
+  color:var(--text);
+  border-radius:8px;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.ctrl:hover{
+  background:#1e2a38;
+}
+
+/* URL BAR */
+#urlWrap{
+  position:relative;
+  flex:1;
+}
+
+#urlBar{
+  width:100%;
+  padding:10px 40px 10px 14px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.05);
+  background:#0f1621;
+  color:var(--text);
+  font-size:14px;
+  outline:none;
+  transition:.2s;
+}
+
+#urlBar:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 2px rgba(77,163,255,.15);
+}
+
+#bookmarkStar{
+  position:absolute;
+  right:12px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:18px;
+  cursor:pointer;
+  opacity:.6;
+  transition:.2s;
+}
+
+#bookmarkStar:hover{
+  opacity:1;
+  color:var(--accent);
+}
 
 /* BOOKMARK BAR */
-#bookmarkBar{display:flex;gap:6px;padding:6px;background:var(--panel);overflow-x:auto}
-.bookmarkButton{padding:6px 10px;background:#111;border-radius:6px;cursor:pointer;white-space:nowrap}
-.bookmarkButton:hover{background:#222}
+#bookmarkBar{
+  display:flex;
+  gap:8px;
+  padding:8px 12px;
+  background:rgba(0,0,0,.2);
+  overflow-x:auto;
+}
 
-/* CONTENT */
-#frames{flex:1;position:relative}
-iframe,.customPage{position:absolute;inset:0;width:100%;height:100%;border:none;display:none}
-iframe.active,.customPage.active{display:block}
-.customPage{background:#0b0b0b;padding:24px;overflow:auto}
-.customHeader{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-.customHeader button{padding:8px 14px;background:#222;border:none;color:white;border-radius:6px}
-.listItem{padding:12px;border-bottom:1px solid #222}
-.listItem span{color:#aaa;font-size:.85rem}
-.customBody{display:flex;flex-direction:column;gap:12px;margin-top:12px}
-.customBody label{font-weight:600;margin-bottom:6px}
-.customBody select{padding:8px;background:#111;color:white;border:none;border-radius:6px;width:220px}
+.bookmarkButton{
+  padding:6px 14px;
+  border-radius:20px;
+  background:#16202a;
+  font-size:13px;
+  cursor:pointer;
+  transition:.2s;
+  white-space:nowrap;
+}
 
-/* MODALS */
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;justify-content:center;align-items:center;z-index:10001}
-.modalBox{background:#111;padding:24px;border-radius:14px;display:flex;flex-direction:column;gap:12px}
-.modalBox input{padding:10px;background:black;border:none;color:white}
-.modalBox button{padding:8px;background:#222;color:white;border:none;border-radius:6px}
-.deleteBtn{background:#660000}
+.bookmarkButton:hover{
+  background:#1e2a38;
+  transform:translateY(-2px);
+}
+
+/* IFRAME AREA */
+#frames{
+  flex:1;
+  position:relative;
+}
+
+iframe{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  border:none;
+  opacity:0;
+  transition:opacity .25s ease;
+}
+
+iframe.active{
+  opacity:1;
+}
+
+/* MENU PANEL */
+#menuPanel{
+  position:absolute;
+  top:55px;
+  right:10px;
+  background:#111923;
+  border-radius:12px;
+  box-shadow:0 10px 30px rgba(0,0,0,.6);
+  display:none;
+  flex-direction:column;
+  min-width:180px;
+  overflow:hidden;
+}
+
+#menuPanel button{
+  padding:12px;
+  background:none;
+  border:none;
+  color:var(--text);
+  text-align:left;
+  cursor:pointer;
+  transition:.2s;
+}
+
+#menuPanel button:hover{
+  background:#1a2430;
+}
 </style>
 </head>
 
