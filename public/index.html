@@ -3,34 +3,41 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" href="Icon.png" />
-<link rel="manifest" href="manifest.json"/>
-<title>Glitch Hub Proxy</title>
+<title>Glitch Hub</title>
 
-<!-- UV Proxy -->
+<!-- Ultraviolet -->
 <script src="/uv/uv.bundle.js"></script>
 <script src="/uv/uv.config.js"></script>
 <script>
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/uv/sw.js", { scope: __uv$config.prefix });
+  navigator.serviceWorker.register("/uv/sw.js", {
+    scope: __uv$config.prefix
+  });
 }
 </script>
+
 <style>
 :root{
-  --bg:#0b0f14;
-  --panel:rgba(20,25,32,.85);
-  --tab:#1a222c;
+  --bg:#0f141a;
+  --panel:#161d26;
+  --tab:#1c2530;
   --tab-active:#243041;
-  --accent:#4da3ff;
+  --accent:#3ea6ff;
   --text:#e6edf3;
-  --muted:#8b949e;
+  --radius:8px;
+  --tabs-height:40px;
+  --bar-height:46px;
 }
 
-*{margin:0;padding:0;box-sizing:border-box}
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
 
 body{
-  font-family:Inter,Segoe UI,system-ui;
-  background:linear-gradient(160deg,#0b0f14,#0f1621);
+  font-family:Segoe UI,Arial,system-ui;
+  background:var(--bg);
   color:var(--text);
   height:100vh;
   display:flex;
@@ -38,34 +45,37 @@ body{
   overflow:hidden;
 }
 
-/* TABS BAR */
+/* ========================= */
+/* TABS */
+/* ========================= */
+
 #tabsBar{
+  height:var(--tabs-height);
   display:flex;
   align-items:flex-end;
   gap:6px;
-  padding:8px 10px 0;
-  backdrop-filter:blur(14px);
+  padding:0 8px;
   background:var(--panel);
   border-bottom:1px solid rgba(255,255,255,.05);
 }
 
 .tab{
+  height:30px;
   display:flex;
   align-items:center;
-  gap:8px;
-  padding:8px 30px 8px 14px;
+  padding:0 28px 0 12px;
   background:var(--tab);
-  border-radius:10px 10px 0 0;
+  border-radius:var(--radius) var(--radius) 0 0;
+  font-size:13px;
   cursor:pointer;
   position:relative;
-  max-width:220px;
+  max-width:200px;
   overflow:hidden;
-  transition:.25s ease;
-  font-size:14px;
+  transition:.15s ease;
 }
 
 .tab:hover{
-  background:#202b38;
+  background:#222c38;
 }
 
 .tab.active{
@@ -82,9 +92,9 @@ body{
 .tab .close{
   position:absolute;
   right:8px;
-  font-size:13px;
+  font-size:12px;
   opacity:.6;
-  transition:.2s;
+  cursor:pointer;
 }
 
 .tab .close:hover{
@@ -92,74 +102,87 @@ body{
   color:#ff5f56;
 }
 
-/* NEW TAB */
 #newTabBtn{
-  padding:6px 12px;
-  border-radius:8px;
+  height:30px;
+  width:30px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:var(--tab);
+  border-radius:var(--radius);
   cursor:pointer;
-  background:#16202a;
-  transition:.2s;
-}
-#newTabBtn:hover{
-  background:#1e2a38;
+  font-size:18px;
+  transition:.15s;
 }
 
+#newTabBtn:hover{
+  background:#222c38;
+}
+
+/* ========================= */
 /* BROWSER BAR */
+/* ========================= */
+
 #browserBar{
+  height:var(--bar-height);
   display:flex;
   align-items:center;
   gap:8px;
-  padding:10px;
+  padding:0 10px;
   background:var(--panel);
-  backdrop-filter:blur(14px);
 }
 
 .ctrl{
-  padding:8px 10px;
-  background:#16202a;
+  height:30px;
+  min-width:34px;
+  padding:0 10px;
+  background:var(--tab);
   border:none;
   color:var(--text);
-  border-radius:8px;
+  border-radius:var(--radius);
   cursor:pointer;
-  transition:.2s;
+  font-size:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:.15s;
 }
 
 .ctrl:hover{
-  background:#1e2a38;
+  background:#222c38;
 }
 
-/* URL BAR */
+/* URL */
+
 #urlWrap{
-  position:relative;
   flex:1;
+  position:relative;
 }
 
 #urlBar{
+  height:30px;
   width:100%;
-  padding:10px 40px 10px 14px;
-  border-radius:12px;
+  padding:0 38px 0 12px;
+  border-radius:var(--radius);
   border:1px solid rgba(255,255,255,.05);
-  background:#0f1621;
+  background:#0f1620;
   color:var(--text);
-  font-size:14px;
+  font-size:13px;
   outline:none;
-  transition:.2s;
 }
 
 #urlBar:focus{
   border-color:var(--accent);
-  box-shadow:0 0 0 2px rgba(77,163,255,.15);
 }
 
 #bookmarkStar{
   position:absolute;
-  right:12px;
+  right:10px;
   top:50%;
   transform:translateY(-50%);
-  font-size:18px;
+  font-size:16px;
   cursor:pointer;
   opacity:.6;
-  transition:.2s;
 }
 
 #bookmarkStar:hover{
@@ -167,34 +190,45 @@ body{
   color:var(--accent);
 }
 
+/* ========================= */
 /* BOOKMARK BAR */
+/* ========================= */
+
 #bookmarkBar{
+  height:36px;
   display:flex;
-  gap:8px;
-  padding:8px 12px;
-  background:rgba(0,0,0,.2);
+  align-items:center;
+  gap:6px;
+  padding:0 10px;
+  background:#121820;
   overflow-x:auto;
 }
 
 .bookmarkButton{
-  padding:6px 14px;
+  height:24px;
+  padding:0 12px;
+  background:var(--tab);
   border-radius:20px;
-  background:#16202a;
-  font-size:13px;
+  font-size:12px;
+  display:flex;
+  align-items:center;
   cursor:pointer;
-  transition:.2s;
   white-space:nowrap;
+  transition:.15s;
 }
 
 .bookmarkButton:hover{
-  background:#1e2a38;
-  transform:translateY(-2px);
+  background:#222c38;
 }
 
-/* IFRAME AREA */
+/* ========================= */
+/* FRAME AREA */
+/* ========================= */
+
 #frames{
   flex:1;
   position:relative;
+  background:black;
 }
 
 iframe{
@@ -203,21 +237,23 @@ iframe{
   width:100%;
   height:100%;
   border:none;
-  opacity:0;
-  transition:opacity .25s ease;
+  display:none;
 }
 
 iframe.active{
-  opacity:1;
+  display:block;
 }
 
-/* MENU PANEL */
+/* ========================= */
+/* MENU */
+/* ========================= */
+
 #menuPanel{
   position:absolute;
-  top:55px;
+  top:var(--bar-height);
   right:10px;
-  background:#111923;
-  border-radius:12px;
+  background:#1b2430;
+  border-radius:10px;
   box-shadow:0 10px 30px rgba(0,0,0,.6);
   display:none;
   flex-direction:column;
@@ -226,322 +262,118 @@ iframe.active{
 }
 
 #menuPanel button{
-  padding:12px;
+  padding:10px;
   background:none;
   border:none;
   color:var(--text);
   text-align:left;
   cursor:pointer;
-  transition:.2s;
 }
 
 #menuPanel button:hover{
-  background:#1a2430;
+  background:#243041;
 }
 </style>
 </head>
 
 <body>
 
-<!-- TABS -->
 <div id="tabsBar">
-  <div id="newTabBtn" onclick="newTab()">＋</div>
+  <div id="newTabBtn" onclick="newTab()">+</div>
 </div>
 
-<!-- BROWSER BAR -->
 <div id="browserBar">
-  <button class="ctrl" onclick="goBack()">⟵</button>
-  <button class="ctrl" onclick="goForward()">⟶</button>
+  <button class="ctrl" onclick="goBack()">←</button>
+  <button class="ctrl" onclick="goForward()">→</button>
   <button class="ctrl" onclick="reloadTab()">⟳</button>
+
   <div id="urlWrap">
     <input id="urlBar" placeholder="Enter URL">
-    <span id="bookmarkStar" onclick="toggleBookmark()">☆</span>
+    <span id="bookmarkStar">☆</span>
   </div>
+
   <button class="ctrl" onclick="fullscreen()">⛶</button>
-  <button class="ctrl" id="menuBtn">⋮</button>
+  <button class="ctrl" onclick="toggleMenu()">⋮</button>
 
   <div id="menuPanel">
     <button onclick="newTab()">New Tab</button>
-    <button onclick="openCustom('/?/History')">History</button>
-    <button onclick="openCustom('/?/Bookmarks')">Bookmarks</button>
-    <button onclick="injectDev()">Dev Tools</button>
-    <button onclick="openCustom('/?/Settings')">Settings</button>
   </div>
 </div>
 
 <div id="bookmarkBar"></div>
 <div id="frames"></div>
 
-<!-- BOOKMARK MODALS -->
-<div id="bmCreate" class="modal">
-  <div class="modalBox">
-    <input id="bmCreateName" placeholder="Name">
-    <input id="bmCreateCode" placeholder="URL or JS">
-    <button onclick="saveBookmark()">Save</button>
-    <button onclick="closeBM()">Cancel</button>
-  </div>
-</div>
-
-<div id="bmEdit" class="modal">
-  <div class="modalBox">
-    <input id="bmEditName">
-    <input id="bmEditCode">
-    <button onclick="saveEdit()">Save</button>
-    <button class="deleteBtn" onclick="deleteBM()">Delete</button>
-    <button onclick="closeBM()">Cancel</button>
-  </div>
-</div>
-
 <script>
-  // =================== HISTORY FIX ===================
-function refreshHistoryPage(){
-  if (typeof active !== "undefined" && active.custom) {
-    active.custom.remove();
-    active.custom = null;
-  }
-  openCustom("/?/History");
-}
-
-function deleteHistoryItem(index){
-  historyLog.splice(index, 1);
-  localStorage.setItem("history", JSON.stringify(historyLog));
-  refreshHistoryPage();
-}
-
-function clearHistory(){
-  if (!confirm("Clear all history?")) return;
-  historyLog.length = 0;
-  localStorage.setItem("history", "[]");
-  refreshHistoryPage();
-}
-// ==================================================
-// ------------------- PROXY BROWSER LOGIC -------------------
 const frames = document.getElementById("frames");
 const urlBar = document.getElementById("urlBar");
-const star = document.getElementById("bookmarkStar");
-const menu = document.getElementById("menuPanel");
-const bookmarkBar = document.getElementById("bookmarkBar");
-const menuBtn = document.getElementById("menuBtn");
+let tabs = [];
+let active = null;
 
-let tabs = [], active = null;
-let bookmarks = JSON.parse(localStorage.getItem("bookmarks")||"{}");
-let historyLog = JSON.parse(localStorage.getItem("history")||"[]");
-let lastURL = null, userTyping = false, editKey = null;
-
-// Default browser search
-let defaultBrowser = localStorage.getItem("defaultBrowser") || "Startpage";
-const browserSearchURLs = {
-  "Startpage": "https://www.startpage.com/sp/search?q=",
-  "Google": "https://www.google.com/search?q=",
-  "DuckDuckGo": "https://duckduckgo.com/?q=",
-  "Brave": "https://search.brave.com/search?q=",
-  "Bing": "https://www.bing.com/search?q="
-};
-
-// MENU
-menuBtn.onclick = () => menu.style.display = "flex";
-menu.onmouseleave = () => menu.style.display = "none";
-
-// Normalize URL
 function normalize(v){
-  if(v.startsWith("/?/")) return v;
-  if(!v.includes(".")) return browserSearchURLs[defaultBrowser]+encodeURIComponent(v);
+  if(!v.includes(".")) return "https://www.startpage.com/sp/search?q="+encodeURIComponent(v);
   if(!v.startsWith("http")) return "https://"+v;
   return v;
 }
 
-// ------------------- TABS -------------------
 function newTab(url){
-  if(!url) url = browserSearchURLs[defaultBrowser];
+  if(!url) url = "https://www.startpage.com/";
+
   const iframe = document.createElement("iframe");
   frames.appendChild(iframe);
 
   const tab = document.createElement("div");
   tab.className = "tab";
-  tab.innerHTML = `<img><span>New Tab</span><span class="close">✕</span>`;
+  tab.innerHTML = `<span>New Tab</span><span class="close">✕</span>`;
   document.getElementById("tabsBar").insertBefore(tab, document.getElementById("newTabBtn"));
 
-  const t = {iframe, tab, url, mode:"proxy", custom:null};
+  const t = {iframe, tab, url};
   tabs.push(t);
 
-  // Tab click
   tab.onclick = () => activate(t);
-  tab.querySelector(".close").onclick = e => { e.stopPropagation(); closeTab(t); };
-
-  // Set favicon and title after iframe loads
-  iframe.onload = () => {
-    try{
-      const doc = iframe.contentDocument;
-      tab.querySelector("span").textContent = doc.title || url;
-      const ico = doc.querySelector("link[rel~='icon']");
-      if(ico) tab.querySelector("img").src = ico.href;
-    } catch{}
+  tab.querySelector(".close").onclick = e => {
+    e.stopPropagation();
+    closeTab(t);
   };
 
   iframe.src = __uv$config.prefix + __uv$config.encodeUrl(url);
   activate(t);
 }
 
-// ACTIVATE TAB
 function activate(t){
-  tabs.forEach(x => {
+  tabs.forEach(x=>{
     x.tab.classList.remove("active");
     x.iframe.classList.remove("active");
-    if(x.custom) x.custom.classList.remove("active");
   });
   active = t;
   t.tab.classList.add("active");
-  (t.mode==="proxy"?t.iframe:t.custom).classList.add("active");
+  t.iframe.classList.add("active");
 }
 
-// URL Bar
-urlBar.onfocus = () => userTyping = true;
-urlBar.onblur = () => userTyping = false;
-urlBar.onkeydown = e => {
-  if(e.key!=="Enter") return;
+urlBar.addEventListener("keydown", e=>{
+  if(e.key !== "Enter") return;
   const v = normalize(urlBar.value);
-  if(v.startsWith("/?/")) openCustom(v);
-  else {
-    active.mode="proxy";
-    active.iframe.src = __uv$config.prefix + __uv$config.encodeUrl(v);
-  }
-};
-
-// Update URL & history
-function updateURL(){
-  if(!active||userTyping) return;
-  if(active.mode==="proxy"){
-    try{
-      const raw = active.iframe.contentWindow.location.href;
-      if(!raw.includes(__uv$config.prefix)) return;
-      const enc = raw.split(__uv$config.prefix)[1];
-      const decoded = __uv$config.decodeUrl(enc.replace(/^\/+/,""));
-      active.url = decoded;
-      urlBar.value = decoded;
-      star.textContent = bookmarks[decoded]?"★":"☆";
-      trackHistory(decoded);
-    } catch{}
-  } else urlBar.value = active.url;
-}
-setInterval(updateURL,400);
-
-function trackHistory(url){
-  if(!url||url===lastURL||url.startsWith("/?/")) return;
-  lastURL=url;
-  historyLog.push({url,time:new Date().toLocaleString()});
-  localStorage.setItem("history",JSON.stringify(historyLog));
-}
-
-// ------------------- CONTROLS -------------------
-function goBack(){active?.iframe.contentWindow.history.back()}
-function goForward(){active?.iframe.contentWindow.history.forward()}
-function reloadTab(){active?.iframe.contentWindow.location.reload()}
-function fullscreen(){active?.iframe.requestFullscreen()}
-function closeTab(t){
-  t.tab.remove(); t.iframe.remove(); if(t.custom) t.custom.remove();
-  tabs = tabs.filter(x=>x!==t);
-  tabs.length ? activate(tabs.at(-1)) : newTab();
-}
-
-// ------------------- BOOKMARKS -------------------
-function toggleBookmark(){if(bookmarks[active.url]) openEdit(active.url); else {bmCreateName.value=active.url;bmCreateCode.value=active.url;bmCreate.style.display="flex"}}
-function saveBookmark(){bookmarks[bmCreateCode.value]={name:bmCreateName.value,code:bmCreateCode.value};localStorage.setItem("bookmarks",JSON.stringify(bookmarks));closeBM();renderBookmarks()}
-function openEdit(key){editKey=key;bmEditName.value=bookmarks[key].name;bmEditCode.value=bookmarks[key].code;bmEdit.style.display="flex"}
-function saveEdit(){delete bookmarks[editKey];bookmarks[bmEditCode.value]={name:bmEditName.value,code:bmEditCode.value};localStorage.setItem("bookmarks",JSON.stringify(bookmarks));closeBM();renderBookmarks()}
-function deleteBM(){delete bookmarks[editKey];localStorage.setItem("bookmarks",JSON.stringify(bookmarks));closeBM();renderBookmarks()}
-function closeBM(){bmCreate.style.display="none";bmEdit.style.display="none"}
-function renderBookmarks(){
-  bookmarkBar.innerHTML="";
-  Object.keys(bookmarks).forEach(url=>{
-    const b=document.createElement("div");
-    b.className="bookmarkButton";
-    b.textContent=bookmarks[url].name;
-    let t;
-    b.onmousedown=()=>t=setTimeout(()=>openEdit(url),600);
-    b.onmouseup=b.onmouseleave=()=>clearTimeout(t);
-    b.onclick=()=>url.startsWith("javascript:") ? (()=>{try{const s=active.iframe.contentDocument.createElement("script");s.textContent=url.replace("javascript:","");active.iframe.contentDocument.body.appendChild(s)}catch{}})() : newTab(url);
-    bookmarkBar.appendChild(b);
-  });
-}
-renderBookmarks();
-
-// ------------------- CUSTOM PAGES -------------------
-function openCustom(path){
-  if(active.custom) active.custom.remove();
-  const page=document.createElement("div");
-  page.className="customPage active";
-  frames.appendChild(page);
-  active.custom=page;
-  active.mode="custom";
-  active.url=path;
-
-if(path==="/?/History"){
-  page.innerHTML=`
-    <div class="customHeader">
-      <h1>History</h1>
-      <div>
-        <button class="deleteBtn" onclick="clearHistory()">Clear All</button>
-        <button onclick="closeCustom()">Close</button>
-      </div>
-    </div>
-  `;
-
-  historyLog.forEach((h,i)=>{
-    page.innerHTML+=`
-      <div class="listItem" style="display:flex;justify-content:space-between;align-items:center;gap:12px">
-        <div>
-          ${h.url}<br>
-          <span>${h.time}</span>
-        </div>
-        <button class="deleteBtn" onclick="deleteHistoryItem(${i})">✕</button>
-      </div>
-    `;
-  });
-}
-
-  if(path==="/?/Bookmarks"){
-    page.innerHTML=`<div class="customHeader"><h1>Bookmarks</h1><button onclick="closeCustom()">Close</button></div>`;
-    Object.values(bookmarks).forEach(b=>page.innerHTML+=`<div class="listItem">${b.name}<br><span>${b.code}</span></div>`);
-  }
-  if(path==="/?/Settings"){
-    page.innerHTML=`<div class="customHeader"><h1>Settings</h1><button onclick="closeCustom()">Close</button></div>
-    <div class="customBody">
-      <label for="browserSelect">Default Browser for Search:</label>
-      <select id="browserSelect">
-        <option>Startpage</option>
-        <option>Google</option>
-        <option>DuckDuckGo</option>
-        <option>Brave</option>
-        <option>Bing</option>
-      </select>
-    </div>`;
-    const sel=document.getElementById("browserSelect");
-    sel.value=defaultBrowser;
-    sel.onchange=()=>{defaultBrowser=sel.value;localStorage.setItem("defaultBrowser",defaultBrowser);alert("Default browser set to: "+defaultBrowser);}
-  }
-}
-function closeCustom(){if(active.custom) active.custom.remove();active.custom=null;active.mode="proxy"}
-
-// ------------------- DEV TOOLS -------------------
-function injectDev(){
-  try{
-    const d=active.iframe.contentDocument;
-    const s=d.createElement("script");
-    s.src="//cdn.jsdelivr.net/npm/eruda";
-    s.onload=()=>{const i=d.createElement("script");i.textContent="eruda.init();";d.body.appendChild(i)};
-    d.body.appendChild(s);
-  }catch{}
-}
-
-// ------------------- AUTO OPEN TAB -------------------
-window.onload = ()=>{ newTab(browserSearchURLs[defaultBrowser]); }
-
-</script>
-<script>
-window.addEventListener("beforeunload", function (e) {
-  e.preventDefault();
-  e.returnValue = "";
+  active.iframe.src = __uv$config.prefix + __uv$config.encodeUrl(v);
 });
+
+function goBack(){active?.iframe.contentWindow.history.back();}
+function goForward(){active?.iframe.contentWindow.history.forward();}
+function reloadTab(){active?.iframe.contentWindow.location.reload();}
+function fullscreen(){active?.iframe.requestFullscreen();}
+function toggleMenu(){
+  const m = document.getElementById("menuPanel");
+  m.style.display = m.style.display === "flex" ? "none" : "flex";
+}
+
+function closeTab(t){
+  t.tab.remove();
+  t.iframe.remove();
+  tabs = tabs.filter(x=>x!==t);
+  if(tabs.length) activate(tabs.at(-1));
+  else newTab();
+}
+
+window.onload = ()=> newTab();
 </script>
+
 </body>
 </html>
