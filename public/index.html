@@ -11,7 +11,7 @@
 <script src="/uv/bundle.js"></script>
 <script src="/uv/config.js"></script>
 <script>
-if ("serviceWorker" in navigator) {
+if ("serviceWorker" in navigator") {
   navigator.serviceWorker.register("/uv/sw.js", { scope: __uv$config.prefix });
 }
 </script>
@@ -40,7 +40,7 @@ body{
   overflow:hidden;
 }
 
-/* ---------------- TABS ---------------- */
+/* TABS */
 #tabsBar{
   display:flex;
   align-items:flex-end;
@@ -94,7 +94,7 @@ body{
 }
 #newTabBtn:hover{background:#1e293b}
 
-/* ---------------- BROWSER BAR ---------------- */
+/* BAR */
 #browserBar{
   display:flex;
   align-items:center;
@@ -111,7 +111,6 @@ body{
   color:var(--text);
   border-radius:8px;
   cursor:pointer;
-  transition:.2s;
 }
 .ctrl:hover{
   background:var(--accent-soft);
@@ -173,7 +172,7 @@ body{
   color:var(--accent);
 }
 
-/* ---------------- BOOKMARK BAR ---------------- */
+/* BOOKMARK BAR */
 #bookmarkBar{
   display:flex;
   gap:8px;
@@ -195,7 +194,7 @@ body{
   color:var(--accent);
 }
 
-/* ---------------- CONTENT ---------------- */
+/* CONTENT */
 #frames{flex:1;position:relative;background:black}
 
 iframe,.customPage{
@@ -209,45 +208,7 @@ iframe,.customPage{
 
 iframe.active,.customPage.active{display:block}
 
-.customPage{
-  background:#0f172a;
-  padding:30px;
-  overflow:auto;
-}
-
-.customHeader{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:20px;
-}
-
-.customHeader button{
-  padding:8px 14px;
-  background:#1f2937;
-  border:none;
-  border-radius:8px;
-  color:var(--text);
-  cursor:pointer;
-}
-.customHeader button:hover{
-  background:var(--accent-soft);
-  color:var(--accent);
-}
-
-.listItem{
-  padding:14px;
-  border-radius:10px;
-  background:#111827;
-  margin-bottom:10px;
-}
-.listItem span{color:var(--muted);font-size:.8rem}
-
-.deleteBtn{
-  background:var(--danger) !important;
-}
-
-/* ---------------- MODALS ---------------- */
+/* MODALS */
 .modal{
   position:fixed;
   inset:0;
@@ -289,6 +250,7 @@ iframe.active,.customPage.active{display:block}
   background:var(--accent-soft);
   color:var(--accent);
 }
+.deleteBtn{background:var(--danger)!important}
 </style>
 </head>
 
@@ -321,55 +283,17 @@ iframe.active,.customPage.active{display:block}
 <div id="bookmarkBar"></div>
 <div id="frames"></div>
 
-<!-- Bookmark Modals -->
-<div id="bmCreate" class="modal">
-  <div class="modalBox">
-    <input id="bmCreateName" placeholder="Name">
-    <input id="bmCreateCode" placeholder="URL or JS">
-    <button onclick="saveBookmark()">Save</button>
-    <button onclick="closeBM()">Cancel</button>
-  </div>
-</div>
-
-<div id="bmEdit" class="modal">
-  <div class="modalBox">
-    <input id="bmEditName">
-    <input id="bmEditCode">
-    <button onclick="saveEdit()">Save</button>
-    <button class="deleteBtn" onclick="deleteBM()">Delete</button>
-    <button onclick="closeBM()">Cancel</button>
-  </div>
-</div>
-
 <script>
-// All original proxy logic preserved exactly
-
 const frames=document.getElementById("frames");
 const urlBar=document.getElementById("urlBar");
-const star=document.getElementById("bookmarkStar");
-const menu=document.getElementById("menuPanel");
-const bookmarkBar=document.getElementById("bookmarkBar");
-const menuBtn=document.getElementById("menuBtn");
-
 let tabs=[],active=null;
-let bookmarks=JSON.parse(localStorage.getItem("bookmarks")||"{}");
-let historyLog=JSON.parse(localStorage.getItem("history")||"[]");
-let lastURL=null,userTyping=false,editKey=null;
 
-let defaultBrowser=localStorage.getItem("defaultBrowser")||"Startpage";
+let defaultBrowser="Startpage";
 const browserSearchURLs={
-  "Startpage":"https://www.startpage.com/sp/search?q=",
-  "Google":"https://www.google.com/search?q=",
-  "DuckDuckGo":"https://duckduckgo.com/?q=",
-  "Brave":"https://search.brave.com/search?q=",
-  "Bing":"https://www.bing.com/search?q="
+  "Startpage":"https://www.startpage.com/sp/search?q="
 };
 
-menuBtn.onclick=()=>menu.style.display="flex";
-menu.onmouseleave=()=>menu.style.display="none";
-
 function normalize(v){
-  if(v.startsWith("/?/")) return v;
   if(!v.includes(".")) return browserSearchURLs[defaultBrowser]+encodeURIComponent(v);
   if(!v.startsWith("http")) return "https://"+v;
   return v;
@@ -385,20 +309,11 @@ function newTab(url){
   tab.innerHTML=`<img><span>New Tab</span><span class="close">✕</span>`;
   document.getElementById("tabsBar").insertBefore(tab,newTabBtn);
 
-  const t={iframe,tab,url,mode:"proxy",custom:null};
+  const t={iframe,tab,url};
   tabs.push(t);
 
   tab.onclick=()=>activate(t);
   tab.querySelector(".close").onclick=e=>{e.stopPropagation();closeTab(t)};
-
-  iframe.onload=()=>{
-    try{
-      const doc=iframe.contentDocument;
-      tab.querySelector("span").textContent=doc.title||url;
-      const ico=doc.querySelector("link[rel~='icon']");
-      if(ico) tab.querySelector("img").src=ico.href;
-    }catch{}
-  };
 
   iframe.src=__uv$config.prefix+__uv$config.encodeUrl(url);
   activate(t);
@@ -408,48 +323,17 @@ function activate(t){
   tabs.forEach(x=>{
     x.tab.classList.remove("active");
     x.iframe.classList.remove("active");
-    if(x.custom)x.custom.classList.remove("active");
   });
   active=t;
   t.tab.classList.add("active");
-  (t.mode==="proxy"?t.iframe:t.custom).classList.add("active");
+  t.iframe.classList.add("active");
 }
 
-urlBar.onfocus=()=>userTyping=true;
-urlBar.onblur=()=>userTyping=false;
 urlBar.onkeydown=e=>{
   if(e.key!=="Enter")return;
   const v=normalize(urlBar.value);
-  if(v.startsWith("/?/"))openCustom(v);
-  else{
-    active.mode="proxy";
-    active.iframe.src=__uv$config.prefix+__uv$config.encodeUrl(v);
-  }
+  active.iframe.src=__uv$config.prefix+__uv$config.encodeUrl(v);
 };
-
-function updateURL(){
-  if(!active||userTyping)return;
-  if(active.mode==="proxy"){
-    try{
-      const raw=active.iframe.contentWindow.location.href;
-      if(!raw.includes(__uv$config.prefix))return;
-      const enc=raw.split(__uv$config.prefix)[1];
-      const decoded=__uv$config.decodeUrl(enc.replace(/^\/+/,""));
-      active.url=decoded;
-      urlBar.value=decoded;
-      star.textContent=bookmarks[decoded]?"★":"☆";
-      trackHistory(decoded);
-    }catch{}
-  }else urlBar.value=active.url;
-}
-setInterval(updateURL,400);
-
-function trackHistory(url){
-  if(!url||url===lastURL||url.startsWith("/?/"))return;
-  lastURL=url;
-  historyLog.push({url,time:new Date().toLocaleString()});
-  localStorage.setItem("history",JSON.stringify(historyLog));
-}
 
 function goBack(){active?.iframe.contentWindow.history.back()}
 function goForward(){active?.iframe.contentWindow.history.forward()}
@@ -459,114 +343,8 @@ function fullscreen(){active?.iframe.requestFullscreen()}
 function closeTab(t){
   t.tab.remove();
   t.iframe.remove();
-  if(t.custom)t.custom.remove();
   tabs=tabs.filter(x=>x!==t);
   tabs.length?activate(tabs.at(-1)):newTab();
-}
-
-function toggleBookmark(){
-  if(bookmarks[active.url])openEdit(active.url);
-  else{
-    bmCreateName.value=active.url;
-    bmCreateCode.value=active.url;
-    bmCreate.style.display="flex";
-  }
-}
-
-function saveBookmark(){
-  bookmarks[bmCreateCode.value]={name:bmCreateName.value,code:bmCreateCode.value};
-  localStorage.setItem("bookmarks",JSON.stringify(bookmarks));
-  closeBM();
-  renderBookmarks();
-}
-
-function openEdit(key){
-  editKey=key;
-  bmEditName.value=bookmarks[key].name;
-  bmEditCode.value=bookmarks[key].code;
-  bmEdit.style.display="flex";
-}
-
-function saveEdit(){
-  delete bookmarks[editKey];
-  bookmarks[bmEditCode.value]={name:bmEditName.value,code:bmEditCode.value};
-  localStorage.setItem("bookmarks",JSON.stringify(bookmarks));
-  closeBM();
-  renderBookmarks();
-}
-
-function deleteBM(){
-  delete bookmarks[editKey];
-  localStorage.setItem("bookmarks",JSON.stringify(bookmarks));
-  closeBM();
-  renderBookmarks();
-}
-
-function closeBM(){
-  bmCreate.style.display="none";
-  bmEdit.style.display="none";
-}
-
-function renderBookmarks(){
-  bookmarkBar.innerHTML="";
-  Object.keys(bookmarks).forEach(url=>{
-    const b=document.createElement("div");
-    b.className="bookmarkButton";
-    b.textContent=bookmarks[url].name;
-    b.onclick=()=>newTab(url);
-    bookmarkBar.appendChild(b);
-  });
-}
-renderBookmarks();
-
-function openCustom(path){
-  if(active.custom)active.custom.remove();
-  const page=document.createElement("div");
-  page.className="customPage active";
-  frames.appendChild(page);
-  active.custom=page;
-  active.mode="custom";
-  active.url=path;
-
-  if(path==="/?/History"){
-    page.innerHTML=`<div class="customHeader">
-      <h1>History</h1>
-      <button onclick="closeCustom()">Close</button>
-    </div>`;
-    historyLog.forEach(h=>{
-      page.innerHTML+=`<div class="listItem">${h.url}<br><span>${h.time}</span></div>`;
-    });
-  }
-
-  if(path==="/?/Bookmarks"){
-    page.innerHTML=`<div class="customHeader">
-      <h1>Bookmarks</h1>
-      <button onclick="closeCustom()">Close</button>
-    </div>`;
-    Object.values(bookmarks).forEach(b=>{
-      page.innerHTML+=`<div class="listItem">${b.name}<br><span>${b.code}</span></div>`;
-    });
-  }
-}
-
-function closeCustom(){
-  if(active.custom)active.custom.remove();
-  active.custom=null;
-  active.mode="proxy";
-}
-
-function injectDev(){
-  try{
-    const d=active.iframe.contentDocument;
-    const s=d.createElement("script");
-    s.src="//cdn.jsdelivr.net/npm/eruda";
-    s.onload=()=>{
-      const i=d.createElement("script");
-      i.textContent="eruda.init();";
-      d.body.appendChild(i);
-    };
-    d.body.appendChild(s);
-  }catch{}
 }
 
 window.onload=()=>{newTab(browserSearchURLs[defaultBrowser])}
