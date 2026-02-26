@@ -1,0 +1,15 @@
+{
+  "name": "Prox Browser",
+  "short_name": "Browser",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "Icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
