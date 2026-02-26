@@ -1,15 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chromium Style Proxy</title>
+<title>Advanced Browser Shell</title>
 
 <!-- Ultraviolet -->
 <script src="/uv/uv.bundle.js"></script>
 <script src="/uv/uv.config.js"></script>
 <script>
-if ("serviceWorker" in navigator") {
+if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/uv/sw.js", {
     scope: __uv$config.prefix
   });
@@ -18,11 +17,10 @@ if ("serviceWorker" in navigator") {
 
 <style>
 :root{
-  --chrome-bg:#202124;
+  --bg:#202124;
   --toolbar:#2b2c2f;
   --tab:#2f3033;
-  --tab-active:#3c4043;
-  --omnibox:#303134;
+  --active:#3c4043;
   --hover:#3a3b3f;
   --border:#3c4043;
   --text:#e8eaed;
@@ -30,10 +28,9 @@ if ("serviceWorker" in navigator") {
 }
 
 *{margin:0;padding:0;box-sizing:border-box}
-
 body{
-  font-family:Segoe UI,Arial,sans-serif;
-  background:var(--chrome-bg);
+  font-family:Segoe UI,Arial;
+  background:var(--bg);
   color:var(--text);
   height:100vh;
   display:flex;
@@ -41,75 +38,47 @@ body{
   overflow:hidden;
 }
 
-/* ================= TABS ================= */
-
+/* Tabs */
 #tabsBar{
-  height:36px;
+  height:38px;
   display:flex;
   align-items:flex-end;
   padding:0 6px;
-  background:var(--chrome-bg);
+  background:var(--bg);
   border-bottom:1px solid var(--border);
 }
-
 .tab{
   height:32px;
   min-width:120px;
   max-width:220px;
   background:var(--tab);
   margin-right:4px;
-  padding:0 28px 0 12px;
+  padding:0 30px 0 12px;
   display:flex;
   align-items:center;
   border-radius:8px 8px 0 0;
   font-size:13px;
   cursor:pointer;
   position:relative;
-  overflow:hidden;
 }
-
-.tab.active{
-  background:var(--tab-active);
-}
-
-.tab:hover{
-  background:var(--hover);
-}
-
-.tab span{
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
+.tab.active{background:var(--active)}
+.tab.incognito{background:#1a1a1a;color:#ccc}
 .tab .close{
   position:absolute;
   right:8px;
   font-size:12px;
   opacity:.6;
-}
-
-.tab .close:hover{
-  opacity:1;
-}
-
-#newTabBtn{
-  height:28px;
-  width:28px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:50%;
   cursor:pointer;
 }
-
-#newTabBtn:hover{
-  background:var(--hover);
+.tab-group-label{
+  font-size:10px;
+  padding:2px 6px;
+  border-radius:6px;
+  margin-right:6px;
 }
 
-/* ================= TOOLBAR ================= */
-
-#browserBar{
+/* Toolbar */
+#toolbar{
   height:48px;
   display:flex;
   align-items:center;
@@ -117,174 +86,80 @@ body{
   padding:0 8px;
   background:var(--toolbar);
 }
-
 .ctrl{
-  width:32px;
-  height:32px;
-  border-radius:50%;
-  border:none;
-  background:transparent;
-  color:var(--text);
+  width:32px;height:32px;border-radius:50%;
+  border:none;background:transparent;color:var(--text);
   cursor:pointer;
-  display:flex;
-  align-items:center;
-  justify-content:center;
 }
-
-.ctrl:hover{
-  background:var(--hover);
-}
-
-/* Omnibox */
-
-#urlWrap{
-  flex:1;
-  display:flex;
-  align-items:center;
-}
-
+.ctrl:hover{background:var(--hover)}
 #urlBar{
-  width:100%;
-  height:32px;
-  border-radius:16px;
+  flex:1;height:32px;border-radius:16px;
   border:1px solid var(--border);
-  background:var(--omnibox);
-  color:var(--text);
-  padding:0 40px 0 16px;
-  font-size:13px;
+  background:#303134;color:var(--text);
+  padding:0 16px;font-size:13px;
   outline:none;
 }
-
-#urlBar:focus{
-  border-color:var(--accent);
+#frames{flex:1;position:relative}
+iframe,.panel{
+  position:absolute;inset:0;width:100%;height:100%;
+  border:none;display:none;
 }
+iframe.active,.panel.active{display:block}
 
-#bookmarkStar{
-  position:absolute;
-  right:20px;
-  font-size:14px;
-  cursor:pointer;
-  opacity:.6;
-}
-
-#bookmarkStar.active{
-  color:#fdd663;
-  opacity:1;
-}
-
-/* ================= BOOKMARK BAR ================= */
-
-#bookmarkBar{
-  height:30px;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:0 12px;
-  background:var(--chrome-bg);
-  border-bottom:1px solid var(--border);
-  overflow-x:auto;
-}
-
-.bookmarkButton{
-  padding:4px 10px;
-  font-size:12px;
-  background:var(--tab);
-  border-radius:4px;
-  cursor:pointer;
-}
-
-.bookmarkButton:hover{
-  background:var(--hover);
-}
-
-/* ================= CONTENT ================= */
-
-#frames{
-  flex:1;
-  position:relative;
-}
-
-iframe,.customPage{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  border:none;
-  display:none;
-}
-
-iframe.active,.customPage.active{
-  display:block;
-}
-
-/* ================= MENU ================= */
-
-#menuPanel{
-  position:absolute;
-  top:48px;
-  right:12px;
+/* Dropdown */
+#menu{
+  position:absolute;top:48px;right:12px;
   background:var(--toolbar);
   border:1px solid var(--border);
   border-radius:8px;
-  display:none;
-  flex-direction:column;
-  min-width:180px;
-  padding:6px 0;
+  display:none;flex-direction:column;
+  min-width:200px;padding:6px 0;
 }
-
-#menuPanel button{
-  padding:8px 16px;
-  border:none;
-  background:none;
-  color:var(--text);
-  text-align:left;
-  cursor:pointer;
+#menu button{
+  padding:8px 16px;border:none;
+  background:none;color:var(--text);
+  text-align:left;cursor:pointer;
 }
-
-#menuPanel button:hover{
-  background:var(--hover);
-}
+#menu button:hover{background:var(--hover)}
 </style>
 </head>
 
 <body>
 
-<div id="tabsBar">
-  <div id="newTabBtn" onclick="newTab()">＋</div>
-</div>
+<div id="tabsBar"></div>
 
-<div id="browserBar">
+<div id="toolbar">
   <button class="ctrl" onclick="goBack()">⟵</button>
   <button class="ctrl" onclick="goForward()">⟶</button>
   <button class="ctrl" onclick="reloadTab()">⟳</button>
-
-  <div id="urlWrap">
-    <input id="urlBar" placeholder="Search or type URL">
-    <span id="bookmarkStar" onclick="toggleBookmark()">★</span>
-  </div>
-
-  <button class="ctrl" onclick="fullscreen()">⛶</button>
+  <input id="urlBar" placeholder="Search or type URL">
   <button class="ctrl" onclick="toggleMenu()">⋮</button>
-
-  <div id="menuPanel">
-    <button onclick="newTab()">New Tab</button>
-    <button onclick="openHistory()">History</button>
-    <button onclick="openBookmarks()">Bookmarks</button>
-    <button onclick="injectDev()">Dev Tools</button>
-  </div>
 </div>
 
-<div id="bookmarkBar"></div>
+<div id="menu">
+  <button onclick="newTab()">New Tab</button>
+  <button onclick="newIncognito()">New Incognito Tab</button>
+  <button onclick="openBookmarks()">Bookmarks</button>
+  <button onclick="openHistory()">History</button>
+  <button onclick="openExtensions()">Extensions</button>
+  <button onclick="openTaskManager()">Task Manager</button>
+  <button onclick="openSettings()">Settings</button>
+  <button onclick="injectDev()">Dev Tools</button>
+</div>
+
 <div id="frames"></div>
 
 <script>
 const frames=document.getElementById("frames");
+const tabsBar=document.getElementById("tabsBar");
 const urlBar=document.getElementById("urlBar");
-const bookmarkStar=document.getElementById("bookmarkStar");
 
-let tabs=[],active=null;
+let tabs=[];
+let active=null;
+
 let bookmarks=JSON.parse(localStorage.getItem("bookmarks")||"[]");
 let historyData=JSON.parse(localStorage.getItem("history")||"[]");
+let extensions=[];
 
 function normalize(v){
   if(!v.includes(".")) return "https://www.startpage.com/sp/search?q="+encodeURIComponent(v);
@@ -292,17 +167,16 @@ function normalize(v){
   return v;
 }
 
-function newTab(url){
-  if(!url) url="https://www.startpage.com/";
+function createTab(url,incognito=false,group=null){
   const iframe=document.createElement("iframe");
   frames.appendChild(iframe);
 
   const tab=document.createElement("div");
-  tab.className="tab";
+  tab.className="tab"+(incognito?" incognito":"");
   tab.innerHTML=`<span>New Tab</span><span class="close">✕</span>`;
-  document.getElementById("tabsBar").appendChild(tab);
+  tabsBar.appendChild(tab);
 
-  const t={iframe,tab,url};
+  const t={iframe,tab,url,incognito,start:Date.now(),group};
   tabs.push(t);
 
   tab.onclick=()=>activate(t);
@@ -315,6 +189,9 @@ function newTab(url){
   activate(t);
 }
 
+function newTab(){createTab("https://www.startpage.com/")}
+function newIncognito(){createTab("https://www.startpage.com/",true)}
+
 function activate(t){
   tabs.forEach(x=>{
     x.tab.classList.remove("active");
@@ -324,74 +201,69 @@ function activate(t){
   t.tab.classList.add("active");
   t.iframe.classList.add("active");
   urlBar.value=t.url;
-  updateBookmarkIcon();
 }
 
 urlBar.addEventListener("keydown",e=>{
-  if(e.key!=="Enter") return;
+  if(e.key!=="Enter")return;
   const v=normalize(urlBar.value);
   active.url=v;
   active.iframe.src=__uv$config.prefix+__uv$config.encodeUrl(v);
-  historyData.unshift(v);
-  localStorage.setItem("history",JSON.stringify(historyData));
-  updateBookmarkIcon();
+  if(!active.incognito){
+    historyData.unshift(v);
+    localStorage.setItem("history",JSON.stringify(historyData));
+  }
 });
-
-function toggleBookmark(){
-  if(!active) return;
-  const i=bookmarks.indexOf(active.url);
-  if(i>-1) bookmarks.splice(i,1);
-  else bookmarks.push(active.url);
-  localStorage.setItem("bookmarks",JSON.stringify(bookmarks));
-  renderBookmarks();
-  updateBookmarkIcon();
-}
-
-function renderBookmarks(){
-  const bar=document.getElementById("bookmarkBar");
-  bar.innerHTML="";
-  bookmarks.forEach(url=>{
-    const btn=document.createElement("div");
-    btn.className="bookmarkButton";
-    btn.textContent=url;
-    btn.onclick=()=>newTab(url);
-    bar.appendChild(btn);
-  });
-}
-
-function openHistory(){
-  alert(historyData.join("\n"));
-}
-
-function openBookmarks(){
-  alert(bookmarks.join("\n"));
-}
-
-function injectDev(){
-  active?.iframe.contentWindow.eval("alert('Dev Tools Injected')");
-}
-
-function goBack(){active?.iframe.contentWindow.history.back();}
-function goForward(){active?.iframe.contentWindow.history.forward();}
-function reloadTab(){active?.iframe.contentWindow.location.reload();}
-function fullscreen(){active?.iframe.requestFullscreen();}
-function toggleMenu(){
-  const m=document.getElementById("menuPanel");
-  m.style.display=m.style.display==="flex"?"none":"flex";
-}
 
 function closeTab(t){
   t.tab.remove();
   t.iframe.remove();
   tabs=tabs.filter(x=>x!==t);
-  if(tabs.length) activate(tabs.at(-1));
-  else newTab();
+  if(tabs.length)activate(tabs[0]);
 }
 
-window.onload=()=>{
-  renderBookmarks();
-  newTab();
+function goBack(){active?.iframe.contentWindow.history.back()}
+function goForward(){active?.iframe.contentWindow.history.forward()}
+function reloadTab(){active?.iframe.contentWindow.location.reload()}
+function toggleMenu(){
+  const m=document.getElementById("menu");
+  m.style.display=m.style.display==="flex"?"none":"flex";
 }
+
+/* Bookmarks */
+function openBookmarks(){
+  alert("Bookmarks:\n\n"+bookmarks.join("\n"));
+}
+
+/* History */
+function openHistory(){
+  alert("History:\n\n"+historyData.join("\n"));
+}
+
+/* Extensions */
+function openExtensions(){
+  alert("Installed Extensions:\n\n"+extensions.join("\n"));
+}
+
+/* Settings */
+function openSettings(){
+  alert("Settings panel (placeholder)");
+}
+
+/* Dev Tools */
+function injectDev(){
+  active?.iframe.contentWindow.eval("alert('DevTools Injected')");
+}
+
+/* Task Manager */
+function openTaskManager(){
+  let info="Task Manager\n\n";
+  tabs.forEach(t=>{
+    info+=`Tab: ${t.url}\nUptime: ${Math.floor((Date.now()-t.start)/1000)}s\n\n`;
+  });
+  alert(info);
+}
+
+window.onload=newTab;
 </script>
 
 </body>
