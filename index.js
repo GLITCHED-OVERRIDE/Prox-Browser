@@ -8,7 +8,7 @@ import { hostname } from "node:os"
 const server = http.createServer();
 const app = express(server);
 const __dirname = process.cwd();
-const bareServer = createBareServer('/bare/');
+const bareServer = createBareServer('/b/');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
