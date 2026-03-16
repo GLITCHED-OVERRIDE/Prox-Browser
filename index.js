@@ -1,57 +1,73 @@
-import { createBareMux } from "@tomphttp/bare-mux-node";
-import { createBareServer } from "@tomphttp/bare-server-node";
-import { createWispEServer } from "@tomphttp/wisp-e-server";
+import express from 'express';
+import http from 'node:http';
+import { createBareServer } from '@tomphttp/bare-server-node';
+import cors from 'cors';
 import path from "path";
-import fs from "fs";
+import { hostname } from "node:os"
 
+const server = http.createServer();
+const app = express(server);
 const __dirname = process.cwd();
+const bareServer = createBareServer('/b/');
 
-// ---- Setup Bare server / BareMux ----
-let bareMux;
-let bareServer;
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(__dirname + '/public'));
+app.use(cors());
 
-try {
-  // Try v3+ (bare-mux)
-  bareMux = createBareMux();
-  bareMux.register("/b/");
-  console.log("Bare-mux detected (v3+)");
-} catch {
-  // Fallback to pre-3.0
-  bareServer = createBareServer("/b/");
-  console.log("Bare-server detected (pre-v3.0)");
-}
+server.on('request', (req, res) => {
+    if (bareServer.shouldRoute(req)) {
+        bareServer.routeRequest(req, res)
+    } else {
+        app(req, res)
+    }
+})
 
-// ---- Setup Wisp E ----
-const wispServer = createWispEServer({ basePath: "/wisp/" });
+server.on('upgrade', (req, socket, head) => {
+    if (bareServer.shouldRoute(req)) {
+        bareServer.routeUpgrade(req, socket, head)
+    } else {
+        socket.end()
+    }
+})
 
-// ---- Serverless Handler ----
-export default async function handler(req, res) {
-  // Route bare requests
-  if (bareMux && bareMux.shouldRoute(req)) {
-    return bareMux.routeRequest(req, res);
-  }
-  if (bareServer && bareServer.shouldRoute(req)) {
-    return bareServer.routeRequest(req, res);
-  }
+app.get('/', (req, res) => {
+    res.sendFile(path.join(process.cwd(), '/public/index.html'));
+});
 
-  // Route wisp requests
-  if (wispServer.shouldRoute(req)) {
-    return wispServer.routeRequest(req, res);
-  }
+app.get('/index', (req, res) => {
+    res.sendFile(path.join(process.cwd(), '/public/index.html'));
+});
 
-  // Serve static files from /public
-  let urlPath = req.url.split("?")[0];
-  if (urlPath === "/" || urlPath === "/index") {
-    urlPath = "/index.html";
-  }
+/* add your own extra urls like this:
 
-  const filePath = path.join(__dirname, "public", urlPath);
-  if (fs.existsSync(filePath) && fs.lstatSync(filePath).isFile()) {
-    const fileContent = fs.readFileSync(filePath);
-    return res.send(fileContent);
-  }
+app.get('/pathOnYourSite', (req, res) => {
+    res.sendFile(path.join(process.cwd(), '/linkToItInYourSource'));
+});
 
-  // Fallback 404
-  res.statusCode = 404;
-  res.end("Not Found");
+*/
+
+const PORT = 3000;
+server.on('listening', () => {
+    const address = server.address();
+
+    console.log("Listening on:");
+    console.log(`\thttp://localhost:${address.port}`);
+    console.log(`\thttp://${hostname()}:${address.port}`);
+    console.log(
+        `\thttp://${address.family === "IPv6" ? `[${address.address}]` : address.address
+        }:${address.port}`
+    );
+})
+
+server.listen({ port: PORT, })
+
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
+
+function shutdown() {
+    console.log("SIGTERM signal received: closing HTTP server");
+    server.close();
+    bareServer.close();
+    process.exit(0);
 }
