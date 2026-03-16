@@ -1,98 +1,57 @@
-import express from "express";
-import http from "node:http";
-import cors from "cors";
+import { createBareMux } from "@tomphttp/bare-mux-node";
+import { createBareServer } from "@tomphttp/bare-server-node";
+import { createWispEServer } from "@tomphttp/wisp-e-server";
 import path from "path";
-import os from "node:os";
+import fs from "fs";
 
-// ---- Ultraviolet / Bare Detection ----
-let bareServer;
+const __dirname = process.cwd();
+
+// ---- Setup Bare server / BareMux ----
 let bareMux;
-let wispServer;
+let bareServer;
 
 try {
-  // Try v3+ modules
-  const { createBareMux } = await import("@tomphttp/bare-mux-node");
-  const { createWispEServer } = await import("@tomphttp/wisp-e-server");
-
+  // Try v3+ (bare-mux)
   bareMux = createBareMux();
-  bareMux.register("/b/"); // all /b/ paths
-
-  wispServer = createWispEServer({ basePath: "/wisp/" });
-  console.log("Detected Ultraviolet v3+ (bare-mux + wisp-e)");
+  bareMux.register("/b/");
+  console.log("Bare-mux detected (v3+)");
 } catch {
-  // fallback to pre-3.0 modules
-  const { createBareServer } = await import("@tomphttp/bare-server-node");
-  const { createWispEServer } = await import("@tomphttp/wisp-e-server");
-
+  // Fallback to pre-3.0
   bareServer = createBareServer("/b/");
-  wispServer = createWispEServer({ basePath: "/wisp/" });
-  console.log("Detected Ultraviolet pre-3.0 (bare-server + wisp-e)");
+  console.log("Bare-server detected (pre-v3.0)");
 }
 
-// ---- Express Setup ----
-const PORT = process.env.PORT || 3000;
-const __dirname = process.cwd();
-const app = express();
+// ---- Setup Wisp E ----
+const wispServer = createWispEServer({ basePath: "/wisp/" });
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cors());
-app.use(express.static(path.join(__dirname, "public")));
-
-app.get(["/", "/index"], (req, res) => {
-  res.sendFile(path.join(__dirname, "public/index.html"));
-});
-
-// ---- HTTP Server ----
-const server = http.createServer((req, res) => {
+// ---- Serverless Handler ----
+export default async function handler(req, res) {
+  // Route bare requests
   if (bareMux && bareMux.shouldRoute(req)) {
-    bareMux.routeRequest(req, res);
-  } else if (bareServer && bareServer.shouldRoute(req)) {
-    bareServer.routeRequest(req, res);
-  } else if (wispServer && wispServer.shouldRoute(req)) {
-    wispServer.routeRequest(req, res);
-  } else {
-    app(req, res);
+    return bareMux.routeRequest(req, res);
   }
-});
-
-// ---- WebSocket Upgrade ----
-server.on("upgrade", (req, socket, head) => {
-  if (bareMux && bareMux.shouldRoute(req)) {
-    bareMux.routeUpgrade(req, socket, head);
-  } else if (bareServer && bareServer.shouldRoute(req)) {
-    bareServer.routeUpgrade(req, socket, head);
-  } else if (wispServer && wispServer.shouldRoute(req)) {
-    wispServer.routeUpgrade(req, socket, head);
-  } else {
-    socket.end();
+  if (bareServer && bareServer.shouldRoute(req)) {
+    return bareServer.routeRequest(req, res);
   }
-});
 
-// ---- Start server ----
-server.listen(PORT, () => {
-  const address = server.address();
-  console.log("Listening on:");
-  console.log(`\thttp://localhost:${PORT}`);
-  console.log(`\thttp://${os.hostname()}:${PORT}`);
-  if (address && typeof address === "object") {
-    console.log(
-      `\thttp://${address.family === "IPv6" ? `[${address.address}]` : address.address
-      }:${address.port}`
-    );
+  // Route wisp requests
+  if (wispServer.shouldRoute(req)) {
+    return wispServer.routeRequest(req, res);
   }
-});
 
-// ---- Graceful shutdown ----
-function shutdown() {
-  console.log("SIGTERM/SIGINT received: closing server");
-  server.close(() => {
-    const bareClose = bareMux ? bareMux.close : bareServer ? bareServer.close : () => {};
-    bareClose(() => {
-      wispServer ? wispServer.close(() => process.exit(0)) : process.exit(0);
-    });
-  });
+  // Serve static files from /public
+  let urlPath = req.url.split("?")[0];
+  if (urlPath === "/" || urlPath === "/index") {
+    urlPath = "/index.html";
+  }
+
+  const filePath = path.join(__dirname, "public", urlPath);
+  if (fs.existsSync(filePath) && fs.lstatSync(filePath).isFile()) {
+    const fileContent = fs.readFileSync(filePath);
+    return res.send(fileContent);
+  }
+
+  // Fallback 404
+  res.statusCode = 404;
+  res.end("Not Found");
 }
-
-process.on("SIGINT", shutdown);
-process.on("SIGTERM", shutdown);
